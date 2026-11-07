@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
+      NODE_ENV: development
       EXPO_NO_TELEMETRY: 1
       STORYBOOK_DISABLE_TELEMETRY: 1
     steps:
@@ -29,6 +30,8 @@ jobs:
           cmdline-tools-version: 13114758
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec expo prebuild --platform android --no-install
       - name: Build local Development Build

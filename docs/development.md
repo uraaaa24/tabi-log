@@ -103,7 +103,7 @@ pnpm exec expo export --platform android --platform ios --source-maps --no-bytec
 
 2026-11-07、Codex cloudのLinuxで実行。
 
-- `pnpm install --frozen-lockfile`成功。`pnpm check`成功（11ファイル、155テスト）。`pnpm build-storybook`成功。
+- `pnpm install --frozen-lockfile`成功。`pnpm check`成功（12ファイル、159テスト）。`pnpm build-storybook`成功。
 - `expo prebuild --no-install --platform all`でiOS/Androidのネイティブプロジェクト生成を確認。これはバイナリのビルドではない。
 - Development Build向けMetroの起動、Android向けmanifest応答と開発用JSの取得を確認。offlineモードではmanifest素材解決の警告が出たため、ネイティブのフォント・アイコン表示は未確認。
 - 通常アプリ・ネイティブStorybookそれぞれのAndroid/iOS向けMetro JSエクスポート成功（計4ケース）。CompilerとNativeWindの生成物、製品へのStorybook混入防止を確認。

@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
 import { spawn, spawnSync } from 'node:child_process'
 import { closeSync, openSync } from 'node:fs'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
 import { paperCardExamples } from '../src/testing/paper-card.ts'
+import { assertPaperCardImage } from './build/paper-card-image.ts'
 
 const artifacts = path.resolve('dist/android-smoke')
 await mkdir(artifacts, { recursive: true })
@@ -91,6 +92,8 @@ for (const [mode, port] of [
     }
     adb(['reverse', `tcp:${port}`, `tcp:${port}`])
     adb(['shell', 'am', 'force-stop', 'dev.tabilog.app'])
+    // Official DevLauncher flags keep its first-run menu from covering the app.
+    const launchUrl = `tabilog://expo-development-client/?url=${encodeURIComponent(base)}&disableOnboarding=1&disableAutoLaunch=1`
     adb([
       'shell',
       'am',
@@ -98,7 +101,8 @@ for (const [mode, port] of [
       '-a',
       'android.intent.action.VIEW',
       '-d',
-      `tabilog://expo-development-client/?url=${encodeURIComponent(base)}`,
+      // adb shell invokes a remote shell; quote URI query separators there.
+      `'${launchUrl}'`,
       'dev.tabilog.app',
     ])
     const visibleDeadline = Date.now() + 180_000
@@ -111,7 +115,13 @@ for (const [mode, port] of [
       if (dump.status === 0) {
         const xml = adb(['exec-out', 'cat', '/sdcard/tabi-window.xml'])
         await writeFile(path.join(artifacts, `${mode}.xml`), xml)
+        // Both entries share the same card, so also distinguish Storybook's UI.
+        const storybookChrome =
+          xml.includes('Open story list') || xml.includes('Close sidebar')
+        const correctEntry =
+          mode === 'storybook' ? storybookChrome : !storybookChrome
         if (
+          correctEntry &&
           xml.includes(paperCardExamples.default.title) &&
           xml.includes(paperCardExamples.default.description)
         ) {
@@ -124,7 +134,30 @@ for (const [mode, port] of [
       )
       await delay(2000)
     }
-    console.log(`${mode}: shared PaperCard rendered on Android`)
+    const rendered = spawnSync('adb', ['exec-out', 'screencap', '-p'], {
+      timeout: 15_000,
+    })
+    assert.equal(rendered.status, 0, `${mode}: screenshot capture failed`)
+    assertPaperCardImage(rendered.stdout, mode)
+    console.log(
+      `${mode}: shared PaperCard, paper token and Lucide icon rendered on Android`,
+    )
+  } catch (error) {
+    const xml = await readFile(
+      path.join(artifacts, `${mode}.xml`),
+      'utf8',
+    ).catch(() => 'No UI XML captured')
+    const metro = await readFile(
+      path.join(artifacts, `${mode}-metro.log`),
+      'utf8',
+    ).catch(() => 'No Metro log captured')
+    const detail =
+      `${error instanceof Error ? error.message : String(error)}\n${xml.slice(-4000)}\n${metro.slice(-2000)}`
+        .replaceAll('%', '%25')
+        .replaceAll('\r', '%0D')
+        .replaceAll('\n', '%0A')
+    console.error(`::error title=Android ${mode} smoke::${detail}`)
+    throw error
   } finally {
     const screenshot = spawnSync('adb', ['exec-out', 'screencap', '-p'], {
       timeout: 15_000,

@@ -28,14 +28,16 @@
 
 1. APKをインストールし、通常アプリ向けMetroを起動する。
 2. development-clientリンクから開き、共通部品のタイトル・本文をAndroidのUIツリーで確認する。
-3. 別ポートでネイティブStorybookを起動し、同じ部品が表示されることを確認する。
+3. 別ポートでネイティブStorybookを起動し、同じ部品が表示され、Storybookの操作UIも現れることを確認する。
 4. 各表示のスクリーンショット・UI XML・Metro/logcatをCI artifactに保存する。起動したMetroだけを停止する。
 
 実行には`adb`、起動済みエミュレーター、`android/app/build/outputs/apk/debug/app-debug.apk`が必要。既存のMetroが8081/8082で動いている場合は上書きせず失敗する。スクリプトは端末の`dev.tabilog.app`を再インストール・再起動するため、個人のデータが入った実機では使わず専用エミュレーターで実行する。
 
-スクリーンショットは見た目のレビュー資料であり、ピクセル一致の受け入れ判定は追加していない。実機での文字サイズ・VoiceOver/TalkBack・指操作・WorkletsのUIスレッド実行は別の確認項目。
+実際のスクリーンショットで紙色とLucideの線色が描画されていることも検査する。最低限の一致ピクセル数を使い、端末密度・フォントによる差を許容する。画像全体のピクセル一致を要求するgolden-imageテストではない。開発メニューの初回案内はExpo DevLauncherの公式クエリフラグで非表示にする。実機での文字サイズ・VoiceOver/TalkBack・指操作・WorkletsのUIスレッド実行は別の確認項目。
 
 ## 外部環境・権限による制約
+
+ユーザーの方針により、iPhone等の実機確認は後日行う（2026-11-07）。今回の実装作業とCI検証から分け、未確認として保持する。
 
 - 現在のLinux cloudにXcode/iPhoneはなく、iOSネイティブビルドと実機表示は実行できない。Macで`pnpm ios --device`を行う。
 - cloudに`/dev/kvm`がないため、Androidエミュレーターの高速実行を前提にしない。Android CIのホスト環境と、ローカルのAndroid Studioで検証する。
@@ -51,3 +53,5 @@ cloud準備スクリプトは導入・再実行を確認済み。設定ドラフ
 ## Androidのcloudビルド結果
 
 SDK 36・Build Tools 36.0.0・NDK 27.1.12297006・CMake 3.22.1を準備し、Temurin 17.0.21（公式SHA256確認済み）とGradle 9.3.1でビルドを実行した。Gradleには継承プロキシと既存CAストアを設定し、TLS検証は維持した。ネイティブの依存解決でMaven Centralから`repo.reactnative.dev`へ転送されたReact Android AARの取得がHTTP 403となり、cloud内のAPK作成は未完了。環境設定で同ドメインへの通信許可が必要。CIではこのcloudの通信制限と別のホストでビルドする。
+
+Android CIでdebug APK作成に成功した。最初の表示確認は失敗したため、DevLauncher初回メニューの抑制、入口を識別するUI検査と失敗時のエラー注釈を追加して再検証する。
