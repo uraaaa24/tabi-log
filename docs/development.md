@@ -69,6 +69,8 @@ pnpm check:native-bundles
 
 ## NativeWindとReact Compiler
 
+- NativeWindはTailwindの`darkMode: 'class'`を明示する。ブラウザでCSSがランタイムより遅れて読み込まれる場合の色設定更新エラーを防ぐためで、アプリのテーマ切替機能は追加しない。遅延CSS挿入で修正前の例外を再現し、修正後は同じ手順とOSのライト／ダーク設定の両方でエラーがないことをChromiumで確認した。
+
 - Metro：`metro.config.cjs`の`withNativeWind`、Tailwind preset、`global.css`、`nativewind/babel`を使用する。pnpmの厳密な依存解決に対応するため、Babelの変換先`react-native-css-interop`も直接依存として固定する。
 - Compiler：`experiments.reactCompiler: true`を設定。SDK 57の`babel-preset-expo`がCompilerを有効化し、React 19の`react/compiler-runtime`を使う。`babel-plugin-react-compiler`も1.0.0で固定する。
 - NativeWindのBabel presetはReanimatedの互換入口からWorklets pluginを呼ぶ。Expo presetも対応するWorkletsを自動検出する。手作業で追加のMetro pluginを重ねない。
