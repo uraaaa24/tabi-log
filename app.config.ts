@@ -13,6 +13,7 @@ const config: ExpoConfig = {
     'expo-router',
     'expo-dev-client',
     'expo-sqlite',
+    '@react-native-community/datetimepicker',
     [
       'expo-image-picker',
       {

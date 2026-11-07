@@ -2,7 +2,7 @@
 
 ## 現在の実装
 
-単一のExpo SDK 57・React Native・TypeScriptプロジェクト。Expo RouterのStackから、NativeWindとLucideを使う`PaperCard`を表示する。ブラウザStorybookも同じ部品を使う。地図選択・記録フォーム・写真保存・SQLite処理は未実装。HTMLモックは引き続き検討資料で、製品コードとは分離している。
+単一のExpo SDK 58・React Native・TypeScriptプロジェクト。日本地図・訪問記録・端末内の写真保存・アルバムを実装済み。ブラウザStorybookは同じ表示部品を使う。製品のWeb対応は後回しとし、iOS・Android向けの構成を維持する。HTMLモックは引き続き検討資料で、製品コードとは分離している。
 
 既存のOxlint・Oxfmt・独自Lintルール・Vitest・依存方向検査・Lefthook・commitlintを引き継いだ。既存ルール・テストの緩和は行っていない。ネイティブStorybookも別入口として構築した。段階1全体の対応状況・実機検証・CIの残件は[段階1の一覧](stage-one-status.md)を参照する。
 
@@ -25,7 +25,7 @@ pnpm build-storybook
 
 Expo Goではなく`expo-dev-client`入りのDevelopment Buildを使用する。EASへの登録・クラウドビルド契約・アプリ用APIキーは不要。
 
-- iOS：macOS、対応するXcode本体、Command Line Tools、CocoaPodsを準備する。実機はDeveloper Modeと署名チームの設定が必要。SDK 57の[環境要件](https://docs.expo.dev/versions/v57.0.0/)と[公式ローカルビルド手順](https://docs.expo.dev/guides/local-app-development/)を確認する。
+- iOS：macOS、対応するXcode本体、Command Line Tools、CocoaPodsを準備する。実機はDeveloper Modeと署名チームの設定が必要。SDK 58の[環境要件](https://docs.expo.dev/versions/v58.0.0/)と[公式ローカルビルド手順](https://docs.expo.dev/guides/local-app-development/)を確認する。
 - Android：Android Studio、SDK、JDK 17（CIではTemurin 17.0.21）とエミュレーター、またはUSBデバッグを有効にした端末を準備する。`ANDROID_HOME`や`adb devices`で接続を確認する。
 
 ```bash
@@ -63,7 +63,7 @@ pnpm storybook:native --android
 pnpm check:native-bundles
 ```
 
-モード切替時のバンドル検査は`--clear`でMetroキャッシュを更新する。公式の`withStorybook`が開発時の入口を`.rnstorybook/index.ts`に差し替える。NativeWindのglobal.cssをこちらでも読み込む。LiteUIを使い、on-device addonや選択状態の保存は追加しない。Storybook本体の推移依存にはbottom-sheet等が含まれるが、MetroでフルUIのJSを除外する。推移peerで取得されたGesture HandlerはSDK 57対応版2.32.0に直接固定する。ブラウザ版と同じ`PaperCard.stories.tsx`を使う。製品ルートにはStorybookを追加しない。起動モード変更時は前のMetroを停止し、必要なら`--clear`でキャッシュを更新する。
+モード切替時のバンドル検査は`--clear`でMetroキャッシュを更新する。公式の`withStorybook`が開発時の入口を`.rnstorybook/index.ts`に差し替える。NativeWindのglobal.cssをこちらでも読み込む。LiteUIを使い、on-device addonや選択状態の保存は追加しない。Storybook本体の推移依存にはbottom-sheet等が含まれるが、MetroでフルUIのJSを除外する。推移peerで取得されたGesture HandlerはSDK 58対応版3.3.0に直接固定する。ブラウザ版と同じ`PaperCard.stories.tsx`を使う。製品ルートにはStorybookを追加しない。起動モード変更時は前のMetroを停止し、必要なら`--clear`でキャッシュを更新する。
 
 `pnpm storybook:generate`で登録ファイルを生成する。`pnpm check:native-bundles`もバンドル開始前に必ず生成し、初回CIでファイルが存在しない場合もMetroのファイル走査より前に準備する。`pnpm typecheck`も先に生成するため、fresh install後のCIでも型チェックできる。生成物はGit管理せず、手書きファイルのルールは維持する。
 
@@ -120,22 +120,32 @@ pnpm exec expo export --platform android --platform ios --source-maps --no-bytec
 
 | 対象                                | 採用版                      | 公式の根拠・用途                                                                                                                                                                                                                |
 | ----------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Expo / Router / dev-client          | 57.0.32 / 57.0.30 / 57.0.21 | [SDK 57の対応表](https://github.com/expo/expo/blob/sdk-57/packages/expo/bundledNativeModules.json)、ローカルDevelopment Build                                                                                                   |
-| React / React DOM / RN              | 19.2.3 / 19.2.3 / 0.86.3    | 同対応表とRNの配布package.jsonのpeer/Node要件                                                                                                                                                                                   |
-| Reanimated / Worklets               | 4.5.1 / 0.10.1              | 同対応表。Reanimated配布metadataはRN 0.83–0.86、Worklets 0.10.xを要求                                                                                                                                                           |
-| safe-area / screens / SVG           | 5.7.0 / 4.26.0 / 15.15.4    | 同対応表。RouterのpeerとLucideのSVG 15対応を照合                                                                                                                                                                                |
+| Expo / Router / dev-client          | 58.0.23 / 58.0.30 / 58.0.18 | [SDK 58の対応表](https://github.com/expo/expo/blob/sdk-58/packages/expo/bundledNativeModules.json)、ローカルDevelopment Build                                                                                                   |
+| React / React DOM / RN              | 19.3.0 / 19.3.0 / 0.88.1    | 同対応表とRNの配布package.jsonのpeer/Node要件                                                                                                                                                                                   |
+| Reanimated / Worklets               | 4.7.1 / 0.13.0              | 同対応表。SDK 58に対応するReanimated・Workletsをまとめて固定                                                                                                                                                                    |
+| safe-area / screens / SVG           | 5.11.1 / 4.30.1 / 15.16.0   | 同対応表。RouterのpeerとLucideのSVG 15対応を照合                                                                                                                                                                                |
 | NativeWind / CSS interop / Tailwind | 4.2.7 / 0.2.7 / 3.4.19      | [公式v4ソース](https://github.com/nativewind/nativewind/tree/4.2)、[他バンドラーの条件](https://github.com/nativewind/nativewind/blob/4.2/apps/website/docs/getting-started/other-bundlers.md)、配布metadata。v5 RCは採用しない |
 | Lucide                              | 1.70.0                      | [公式React Native導入案内](https://lucide.dev/guide/react-native/getting-started)、配布metadataのReact 19 / SVG 15のpeer                                                                                                        |
-| React Compiler / Expo Babel preset  | 1.0.0 / 57.0.17             | [Expoの公式手順ソース](https://github.com/expo/expo/blob/sdk-57/docs/pages/guides/react-compiler.mdx)、[preset実装](https://github.com/expo/expo/blob/sdk-57/packages/babel-preset-expo/src/configs/expo.ts)                    |
-| Storybook RNW Vite / RNW            | 10.6.6 / 0.21.2             | [公式フレームワーク](https://storybook.js.org/docs/get-started/frameworks/react-native-web-vite)、配布metadataのReact 19 / RNW 0.21 / Vite 7対応                                                                                |
+| React Compiler / Expo Babel preset  | 1.0.0 / 58.0.24             | [Expoの公式手順ソース](https://github.com/expo/expo/blob/sdk-58/docs/pages/guides/react-compiler.mdx)、[preset実装](https://github.com/expo/expo/blob/sdk-58/packages/babel-preset-expo/src/configs/expo.ts)                    |
+| Storybook RNW Vite / RNW            | 10.6.6 / 0.21.4             | [公式フレームワーク](https://storybook.js.org/docs/get-started/frameworks/react-native-web-vite)、配布metadataのReact 19 / RNW 0.21 / Vite 7対応                                                                                |
 | Vite / vite-plugin-rnw / Babel      | 7.3.1 / 0.0.11 / 7.29.13    | Storybookが使うRNW変換をテストでも直接使用。Babel 7系をExpoと揃え、Babel 8には上げない                                                                                                                                          |
 
 公式Webドキュメントの一部は環境の通信制限により取得できなかったため、閲覧済みの根拠は公式GitHubソース・npmの公式配布metadata・インストール済みパッケージの実装を併用した。リンクの掲載だけを、そのWebページを今回取得できた証拠とは扱わない。
 
-Androidの表示モード設定に必要な`expo-system-ui`は57.0.4で固定し、SDK 57対応表に合わせた。
+Androidの表示モード設定に必要な`expo-system-ui`は58.0.7で固定し、SDK 58対応表に合わせた。
 
 ネイティブStorybookは`@storybook/react-native` / `@storybook/react-native-ui-lite` 10.7.1で固定。core Storybook 10.6.6はそのpeer範囲（^10.5.4）を満たす。[v10.7.1の公式導入手順](https://github.com/storybookjs/react-native/blob/v10.7.1/docs/docs/intro/getting-started/index.md)と入口差し替え実装を確認した。開発時のNativeWind JSX変換に必要な`@babel/plugin-transform-react-jsx` 7.29.7を直接依存として固定。`cross-env` 10.1.0でWindowsでも起動フラグを設定できる。
 
 ## Phase2の起動と確認
 
 日本地図・記録・写真保存のネイティブ依存を追加したため、既存のDevelopment Buildの更新が必要。`pnpm ios`または`pnpm android`で再ビルドする。ブラウザStorybookは`Map/Japan`・`Records/ScrapPhoto`・`Records/PhotoGallery`を追加した。保存設計・画像変換の固定パッチ・未実施の受け入れ確認は[Phase2の記録](phase-two-status.md)を参照。
+
+## SDK 58への更新
+
+ユーザーの指定によりExpo 58.0.23へ更新し、SDK同梱の対応表に沿ってReact・RN・各Expoモジュールを固定した。`@expo/dom-webview` 58.0.2と`@react-native/metro-config` 0.88.1も、SDK 58の厳密なpnpm peer解決に合わせ直接固定する。OS日付選択のconfig pluginを追加し、写真の白背景JPEGパッチは`expo-image-manipulator` 58.0.16のソースへ移し替えた。
+
+SVG 15.16.0が参照する`@react-native/assets-registry/registry`は、Storybook ViteではRN WebのAssetRegistryへ解決する。Metro側のアセット解決は変更しない。NativeWind 4.2.7・CSS interop 0.2.7・Tailwind 3の構成を維持し、Compiler・Worklets変換、Storybookビルド、両OSの製品／Storybookバンドルで互換性を検証する。
+
+既存のSDK 57向けDevelopment Buildは作り直す。Macでは`pnpm ios`、Android環境では`pnpm android`を実行し、その後`pnpm start`で接続する。以下の過去の検証記録は当時のSDKでの結果であり、SDK 58の実機検証として読み替えない。
+
+SDK 58のMetroが出力する分割ソースマップは、各セクションを再帰的に読み出して従来と同じバンドル境界検査へ渡す。不正形式や外部参照だけのセクションは拒否し、後方セクションのStorybook混入もテストで検出する。SDK 58で`pnpm check`（18ファイル・183テスト）、`pnpm check:native-bundles`のiOS/Android製品・ネイティブStorybook、ブラウザStorybookビルド、地図選択と2,000枚の仮想化表示を確認した。iOS・Androidの生成は`expo prebuild --clean --no-install --platform all`で確認し、実機の検証とは区別する。

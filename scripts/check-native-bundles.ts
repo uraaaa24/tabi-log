@@ -5,6 +5,7 @@ import path from 'node:path'
 
 import type { BundleMode } from './build/bundle-sources.ts'
 import { checkBundleSources } from './build/bundle-sources.ts'
+import { sourceMapSources } from './build/source-map-sources.ts'
 
 for (const mode of ['product', 'storybook'] satisfies BundleMode[]) {
   const output = path.resolve('dist/bundle-checks', mode)
@@ -58,12 +59,11 @@ for (const mode of ['product', 'storybook'] satisfies BundleMode[]) {
       `${mode}/${platform}: no source maps were produced`,
     )
     for (const file of maps) {
-      const map: { sources: string[] } = JSON.parse(
+      const map: unknown = JSON.parse(
         await readFile(path.join(directory, file), 'utf8'),
       )
-      assert.ok(Array.isArray(map.sources), `${file}: invalid source map`)
       assert.deepEqual(
-        checkBundleSources(map.sources, mode),
+        checkBundleSources(sourceMapSources(map), mode),
         [],
         `${mode}/${platform}: incorrect entry graph`,
       )
