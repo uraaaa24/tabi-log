@@ -3,14 +3,21 @@ import type { ReactNode } from 'react'
 import { Pressable, Text, View } from 'react-native'
 
 export const colors = {
-  background: '#F7F8F3',
-  surface: '#FFFFFF',
-  ink: '#2B312D',
-  muted: '#737A74',
-  line: '#E4E8E1',
-  primary: '#3F7256',
-  soft: '#EAF0E9',
-  danger: '#B43435',
+  background: '#F3E6CE',
+  surface: '#FFF4DC',
+  ink: '#55412E',
+  muted: '#7B634B',
+  line: '#DAC5A1',
+  primary: '#9E6447',
+  onPrimary: '#FFFAF0',
+  soft: '#EAD2A7',
+  danger: '#9D3028',
+  board: '#694229',
+  boardText: '#F2E4C9',
+  boardMuted: '#C5AE8D',
+  boardBoundary: '#705139',
+  land: '#C5A67A',
+  pinNeedle: '#EEE5CD',
 } as const
 
 function pressOpacity(disabled: boolean, pressed: boolean) {
@@ -36,7 +43,7 @@ export const Button = ({
   secondary = false,
 }: ButtonProps) => {
   const backgroundColor = secondary || danger ? colors.soft : colors.primary
-  const foreground = secondary ? colors.ink : colors.surface
+  const foreground = secondary ? colors.ink : colors.onPrimary
   const color = danger ? colors.danger : foreground
   return (
     <Pressable
@@ -99,9 +106,15 @@ type HeaderProps = Readonly<{
   title: string
   onBack?: () => void
   actions?: ReactNode
+  foreground?: string
 }>
 
-export const Header = ({ title, onBack, actions }: HeaderProps) => {
+export const Header = ({
+  title,
+  onBack,
+  actions,
+  foreground = colors.ink,
+}: HeaderProps) => {
   return (
     <View
       style={{
@@ -119,12 +132,19 @@ export const Header = ({ title, onBack, actions }: HeaderProps) => {
         >
           <ArrowLeft
             size={22}
-            color={colors.ink}
+            color={foreground}
             strokeWidth={1.8}
           />
         </IconButton>
       )}
-      <Text style={{ ...titleStyle, flex: 1, paddingLeft: onBack ? 0 : 8 }}>
+      <Text
+        style={{
+          ...titleStyle,
+          color: foreground,
+          flex: 1,
+          paddingLeft: onBack ? 0 : 8,
+        }}
+      >
         {title}
       </Text>
       {actions}

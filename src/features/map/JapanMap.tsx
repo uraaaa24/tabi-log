@@ -118,7 +118,7 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
       style={{
         flex: 1,
         overflow: 'hidden',
-        backgroundColor: colors.background,
+        backgroundColor: colors.board,
       }}
       onLayout={({ nativeEvent }) => {
         setSize(nativeEvent.layout)
@@ -154,8 +154,8 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
                 >
                   <Path
                     d={place.path}
-                    fill={visited.includes(place.id) ? '#ADC0AC' : '#D6DDCF'}
-                    stroke={colors.background}
+                    fill={colors.land}
+                    stroke={colors.boardBoundary}
                     strokeWidth={1.3}
                   />
                   {visited.includes(place.id) && (
@@ -165,20 +165,20 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
                         y1={place.y}
                         x2={place.x}
                         y2={place.y + 6}
-                        stroke="#7D6354"
+                        stroke={colors.pinNeedle}
                         strokeWidth={1.5}
                       />
                       <Circle
                         cx={place.x}
                         cy={place.y - 2}
                         r={4}
-                        fill="#B85C47"
+                        fill="#AC4D36"
                       />
                       <Circle
                         cx={place.x - 1}
                         cy={place.y - 3}
                         r={1.2}
-                        fill="#E6A48D"
+                        fill="#EDBA8A"
                       />
                     </G>
                   )}

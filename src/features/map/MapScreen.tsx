@@ -40,9 +40,10 @@ export const MapScreen = () => {
     }
   }
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.board }}>
       <Header
         title="旅の記録"
+        foreground={colors.boardText}
         actions={
           <IconButton
             label="設定"
@@ -52,7 +53,7 @@ export const MapScreen = () => {
           >
             <Settings
               size={22}
-              color={colors.ink}
+              color={colors.boardText}
               strokeWidth={1.8}
             />
           </IconButton>
@@ -68,11 +69,11 @@ export const MapScreen = () => {
         }}
       >
         <Text
-          style={{ color: colors.primary, fontSize: 32, fontWeight: '600' }}
+          style={{ color: colors.boardText, fontSize: 32, fontWeight: '600' }}
         >
           {value?.length ?? '—'}
         </Text>
-        <Text style={{ color: colors.muted, fontSize: 14 }}>
+        <Text style={{ color: colors.boardMuted, fontSize: 14 }}>
           / 47　訪れた場所
         </Text>
       </View>
@@ -80,7 +81,7 @@ export const MapScreen = () => {
         <View style={{ paddingHorizontal: 24 }}>
           <Text
             accessibilityRole="alert"
-            style={{ color: colors.danger }}
+            style={{ color: '#FFD0BE' }}
           >
             {error || selectionError}
           </Text>
@@ -96,7 +97,7 @@ export const MapScreen = () => {
       {value === null && !error ? (
         <ActivityIndicator
           accessibilityLabel="地図を読み込み中"
-          color={colors.primary}
+          color={colors.boardText}
         />
       ) : null}
       <JapanMap
@@ -107,7 +108,7 @@ export const MapScreen = () => {
       />
       <Text
         style={{
-          color: colors.muted,
+          color: colors.boardMuted,
           fontSize: 12,
           textAlign: 'center',
           paddingVertical: 16,

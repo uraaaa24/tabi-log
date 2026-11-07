@@ -16,21 +16,15 @@ export function assertJapanMapImage(buffer: Buffer) {
   )
   const background = colors.filter(
     ([r = 0, g = 0, b = 0]) =>
-      r >= 244 && r <= 249 && g >= 245 && g <= 250 && b >= 240 && b <= 246,
+      r >= 102 && r <= 108 && g >= 63 && g <= 69 && b >= 38 && b <= 44,
   ).length
   const land = colors.filter(
     ([r = 0, g = 0, b = 0]) =>
-      r >= 168 &&
-      r <= 218 &&
-      g >= 185 &&
-      g <= 225 &&
-      b >= 168 &&
-      b <= 212 &&
-      g > r,
+      r >= 194 && r <= 200 && g >= 163 && g <= 169 && b >= 119 && b <= 125,
   ).length
   assert.ok(
     background > image.width * image.height * 0.1,
-    'Japan map neutral background did not render',
+    'Japan map wood board background did not render',
   )
   assert.ok(
     land > image.width * image.height * 0.015,

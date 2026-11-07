@@ -162,7 +162,7 @@ export const RecordFields = ({
               >
                 <Text
                   style={{
-                    color: selected ? colors.surface : colors.ink,
+                    color: selected ? colors.onPrimary : colors.ink,
                     fontSize: 14,
                   }}
                 >
