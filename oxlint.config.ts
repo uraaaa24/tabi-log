@@ -75,6 +75,7 @@ export default defineConfig({
         '.storybook/main.ts',
         '.storybook/preview.ts',
         'oxlint.config.ts',
+        'commitlint.config.ts',
         'scripts/lint/index.ts',
         'oxfmt.config.ts',
         'vitest.config.ts',

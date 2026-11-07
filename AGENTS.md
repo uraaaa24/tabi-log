@@ -29,6 +29,7 @@ Nodeは `.node-version`、pnpmは `package.json` の `packageManager` に合わ�
 - `pnpm install --frozen-lockfile`：固定した依存を導入。
 - `pnpm check`：Lint・整形確認・型チェック・Vitest・依存方向検査。
 - `pnpm lint:fix` → `pnpm format`：Lintの自動修正後に整形。
+- `pnpm commitlint --edit <message-file>`：コミットメッセージを検査。
 - `pnpm hooks:install`：Lefthookを有効化。フックは検査のみとし、自動修正・自動ステージを行わない。
 
 Expo・Storybookの初期構築では、アプリ依存と起動・ビルドコマンドを追加し、TypeScript設定をExpoに対応させて `src/` も型チェック対象に含める。Tailwind設定へNativeWindのpresetを追加し、CIにも `pnpm build-storybook` を追加する。既存のLint・整形・テスト設定は引き継ぐ。
@@ -46,6 +47,13 @@ Expo・Storybookの初期構築では、アプリ依存と起動・ビルドコ�
 - `let`が読みやすさ・性能のために必要な場合だけ、理由付きの局所例外を認める。禁止を回避するための不要なオブジェクトや複雑な `reduce` は作らない。
 - Lint無効化は対象ルール名と `-- 具体的な理由` が必須。一括無効化や不要になった無効化コメントは禁止。`pnpm lint` は抑制コメントの事前検査も実行するため、Oxlint単体で代用しない。
 - TypeScriptのエラー抑制は理由付きの `@ts-expect-error` のみ許可する。例外の必要性・理由の妥当性はレビューで確認する。
+
+## コミットメッセージ
+
+- `type(scope): 絵文字 要約` 形式。scopeは任意で、要約は日本語でもよい。例：`feat(map): ✨ 訪問済みの県にピンを表示`。
+- 種類ごとの絵文字は [scripts/commit/emoji.ts](scripts/commit/emoji.ts) を参照する。Unicodeの絵文字を使い、shortcodeは使わない。種類と絵文字は固定で対応させる。
+- [commitlint.config.ts](commitlint.config.ts) でConventional Commitsと絵文字を検査する。Lefthookのcommit-msgとPRのCIで同じ検査を実行し、自動書き換えはしない。
+- mergeなどの自動生成メッセージはcommitlint標準の除外に従う。規約は新しいコミットに適用し、過去の履歴は書き換えない。
 
 ## 検証と完了報告
 

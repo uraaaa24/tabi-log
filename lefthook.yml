@@ -10,3 +10,7 @@ pre-push:
   commands:
     check:
       run: pnpm check
+commit-msg:
+  commands:
+    message:
+      run: pnpm commitlint --edit "{1}"
