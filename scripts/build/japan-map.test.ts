@@ -51,7 +51,7 @@ describe('木製パーツ用に簡略化した47都道府県', () => {
     const count = prefectures
       .flatMap(rings)
       .reduce((total, ring) => total + ring.length, 0)
-    expect(count).toBeLessThan(1600)
+    expect(count).toBeLessThan(600)
     for (const part of prefectures) {
       expect(containsPin(part), part.name).toBe(true)
       for (const ring of rings(part)) {
