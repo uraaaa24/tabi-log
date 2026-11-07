@@ -27,7 +27,7 @@
     "export:ios": "expo export --platform ios --max-workers 2",
     "storybook:native": "cross-env STORYBOOK_ENABLED=true STORYBOOK_SERVER=false expo start --dev-client",
     "storybook:generate": "sb-rn-get-stories --config-path .rnstorybook",
-    "check:native-bundles": "node scripts/check-native-bundles.ts",
+    "check:native-bundles": "pnpm storybook:generate && node scripts/check-native-bundles.ts",
     "check:android-ui": "node scripts/check-android-ui.ts"
   },
   "dependencies": {

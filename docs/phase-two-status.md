@@ -34,8 +34,8 @@ SQLiteの外部キーを有効にし、WAL・schema version 1を使う。新し�
 - 写真ファイルのテスト：部分コピー失敗からの再試行、編集破棄、DBを基準にした回収、DB読み込み失敗時の保護。ファイルAPIの代替実装を使い、OS連携の検証とは区別する。
 - `expo prebuild --no-install --platform all`：iOS/Androidのネイティブプロジェクト生成に成功。カメラ・マイク権限の除去設定を生成されたAndroid manifestでも確認。ネイティブバイナリのビルドとは異なる。
 - ブラウザStorybook：日本地図、スクラップ写真、縦横混在・2,000枚のFlashListを実際に表示して確認。47県の存在、長野県タップでJP-20を選択、拡大・全体復帰、2,000枚のうち18セルの描画、画像の重なりなし、最終写真へのスクロール到達、実行時エラーなしをPlaywrightとChromiumで確認した。大量データの例は生成し、リポジトリへ大量の画像を追加しない。
-- `pnpm check:native-bundles`：iOS/Androidの製品・ネイティブStorybookのJSエクスポートと入口分離。モード切替時のMetroキャッシュ混在を避け、各エクスポートで`--clear`する。
-- Android CIの起動画面検査を、製品では日本地図の文字と木・地形の画素、Storybookでは従来のPaperCardの文字・紙色・Lucideの画素を検査するよう更新した。
+- `pnpm check:native-bundles`：初回CIでネイティブStorybook登録ファイルが未生成のままMetroが走査し、解決に失敗したため、コマンド先頭で明示生成するよう修正。生成物を削除し、`CI=1 pnpm check:native-bundles`で両OS・両モードの成功を確認した。iOS/Androidの製品・ネイティブStorybookのJSエクスポートと入口分離。モード切替時のMetroキャッシュ混在を避け、各エクスポートで`--clear`する。
+- Android CIの起動画面検査を、製品では日本地図の文字と木・地形の画素、Storybookでは従来のPaperCardの文字・紙色・Lucideの画素を検査するよう更新した。[初回PRのAndroid CI（run 7）](https://github.com/uraaaa24/tabi-log/actions/runs/42353310138)でDevelopment Buildのコンパイルとエミュレーター上の両起動画面検査に成功。訪問保存・写真取り込みなどの受け入れ確認は含まない。
 
 ## 実機での受け入れ確認（未実施）
 

@@ -65,7 +65,7 @@ pnpm check:native-bundles
 
 モード切替時のバンドル検査は`--clear`でMetroキャッシュを更新する。公式の`withStorybook`が開発時の入口を`.rnstorybook/index.ts`に差し替える。NativeWindのglobal.cssをこちらでも読み込む。LiteUIを使い、on-device addonや選択状態の保存は追加しない。Storybook本体の推移依存にはbottom-sheet等が含まれるが、MetroでフルUIのJSを除外する。推移peerで取得されたGesture HandlerはSDK 57対応版2.32.0に直接固定する。ブラウザ版と同じ`PaperCard.stories.tsx`を使う。製品ルートにはStorybookを追加しない。起動モード変更時は前のMetroを停止し、必要なら`--clear`でキャッシュを更新する。
 
-`pnpm storybook:generate`で登録ファイルを生成する。`pnpm typecheck`も先に生成するため、fresh install後のCIでも型チェックできる。生成物はGit管理せず、手書きファイルのルールは維持する。
+`pnpm storybook:generate`で登録ファイルを生成する。`pnpm check:native-bundles`もバンドル開始前に必ず生成し、初回CIでファイルが存在しない場合もMetroのファイル走査より前に準備する。`pnpm typecheck`も先に生成するため、fresh install後のCIでも型チェックできる。生成物はGit管理せず、手書きファイルのルールは維持する。
 
 ## NativeWindとReact Compiler
 
