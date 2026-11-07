@@ -60,6 +60,9 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
       scale.value = next
     })
     .onFinalize(() => {
+      if (!pinching.value) {
+        return
+      }
       pinching.value = false
       x.value = withSpring(boundedOffset(x.value, size.width, scale.value), {
         damping: 24,
