@@ -39,7 +39,7 @@
 ## 実施状況と残件
 
 - 共通部品のMetro（Android/iOS）とStorybook（Vite）変換をテストで確認した。MetroのJSエクスポートとブラウザ表示も確認した。
-- 初期構築のコード・設定・CI追加は実装済み。Xcode/Android SDKによるネイティブバイナリのビルド、実機・エミュレーター表示には別環境が必要。ネイティブStorybookの入口とバンドル分離検査、Android CIは追加済み。各項目の状態は[段階1一覧](stage-one-status.md)を参照。
+- 初期構築のコード・設定・CI追加は実装済み。Android CIでdebug APKビルド・エミュレーター表示と描画検査に成功。XcodeによるiOSビルドと実機確認は後日。ネイティブStorybookの入口とバンドル分離検査、Android CIは追加済み。各項目の状態は[段階1一覧](stage-one-status.md)を参照。
 - GitHub Actionsのリモート実行と必須チェックの指定は、人によるレビュー時に確認する。以下は初期調査時の記録を含む。
 
 - 調査時のローカル環境はNode v26.0.0、pnpm 11.10.0。これは採用版の決定ではない。Expo・Storybook・Vitest等との互換性を確認し、プロジェクトで使用する版を固定する。

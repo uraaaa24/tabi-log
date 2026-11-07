@@ -2,16 +2,16 @@
 
 初期構築計画の全項目を対象とする。製品機能の実装には進んでいない。コードを用意したことと、OS上の実行・リモート設定が確認できたことを区別する。
 
-| 計画の項目                          | 実装・確認内容                                                                                                         | 残る確認                                                              |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| 1. 単一Expo/TypeScriptと固定版      | SDK 57、Router、Development Build、NativeWind、React Compilerを固定。frozen installとMetro変換を確認                   | iOSバイナリと実機                                                     |
-| 2. 最小共通部品とStorybook          | PaperCardと同じstoriesをブラウザ・ネイティブで共有。LiteUIと公式の入口差し替えを導入                                   | ネイティブ表示はAndroid CI/実機で確認。JS生成だけでは完了扱いにしない |
-| 3. Vitest・共用サンプル・品質設定   | 既存設定と139テストを維持。変換・バンドル境界のテストを追加。src/testingの架空表示例をStorybookとAndroidスモークで共有 | 製品ロジックのテストはその実装時に追加                                |
-| 4. 共通チェック・依存方向           | pnpm checkにLint・整形・型・Vitest・依存方向を統合。型チェック時にnative stories登録を生成                             | なし（変更時に再実行）                                                |
-| 5. Lefthook                         | pre-commitのLint/整形、commit-msg、pre-pushの全体チェックを維持                                                        | ローカルでもpnpm hooks:installを実行する                              |
-| 6. GitHub Actions・必須チェック     | Qualityのcheck/storybook/commitlintはPR #1とマージ後mainで成功を確認。native-bundlesとAndroid実行CIを追加              | 新規ジョブの実行結果、mainへの必須チェック設定の適用                  |
-| 7. AGENTSと実行手順                 | 既存ルールを維持し、ネイティブStorybook・クラウド準備・バンドル検査への案内を追加                                      | なし                                                                  |
-| 8. ローカルDevelopment Buildとcloud | ローカルビルド手順、Node/pnpm準備スクリプトと再実行、iOS/Android JS生成、ブラウザ確認を用意                            | Mac/Xcode、iPhone、Android実機、端末上の読み上げ・Worklets実行        |
+| 計画の項目                          | 実装・確認内容                                                                                                         | 残る確認                                                                             |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 1. 単一Expo/TypeScriptと固定版      | SDK 57、Router、Development Build、NativeWind、React Compilerを固定。frozen installとMetro変換を確認                   | iOSバイナリと実機                                                                    |
+| 2. 最小共通部品とStorybook          | PaperCardと同じstoriesをブラウザ・ネイティブで共有。LiteUIと公式の入口差し替えを導入                                   | Android CIで文字・操作UI・紙色・Lucide線色を確認済み。iPhone等の実機は後日           |
+| 3. Vitest・共用サンプル・品質設定   | 既存設定と139テストを維持。変換・バンドル境界のテストを追加。src/testingの架空表示例をStorybookとAndroidスモークで共有 | 製品ロジックのテストはその実装時に追加                                               |
+| 4. 共通チェック・依存方向           | pnpm checkにLint・整形・型・Vitest・依存方向を統合。型チェック時にnative stories登録を生成                             | なし（変更時に再実行）                                                               |
+| 5. Lefthook                         | pre-commitのLint/整形、commit-msg、pre-pushの全体チェックを維持                                                        | ローカルでもpnpm hooks:installを実行する                                             |
+| 6. GitHub Actions・必須チェック     | Qualityのcheck/storybook/commitlintはPR #1とマージ後mainで成功を確認。native-bundlesとAndroid実行CIを追加              | 新規のnative-bundles/android-smokeも成功確認済み。mainへの必須チェック設定は権限待ち |
+| 7. AGENTSと実行手順                 | 既存ルールを維持し、ネイティブStorybook・クラウド準備・バンドル検査への案内を追加                                      | なし                                                                                 |
+| 8. ローカルDevelopment Buildとcloud | ローカルビルド手順、Node/pnpm準備スクリプトと再実行、iOS/Android JS生成、ブラウザ確認を用意                            | Mac/Xcode、iPhone、Android実機、端末上の読み上げ・Worklets実行                       |
 
 ## ネイティブStorybook
 
@@ -54,4 +54,4 @@ cloud準備スクリプトは導入・再実行を確認済み。設定ドラフ
 
 SDK 36・Build Tools 36.0.0・NDK 27.1.12297006・CMake 3.22.1を準備し、Temurin 17.0.21（公式SHA256確認済み）とGradle 9.3.1でビルドを実行した。Gradleには継承プロキシと既存CAストアを設定し、TLS検証は維持した。ネイティブの依存解決でMaven Centralから`repo.reactnative.dev`へ転送されたReact Android AARの取得がHTTP 403となり、cloud内のAPK作成は未完了。環境設定で同ドメインへの通信許可が必要。CIではこのcloudの通信制限と別のホストでビルドする。
 
-Android CIでdebug APK作成に成功した。最初の表示確認は失敗したため、DevLauncher初回メニューの抑制、入口を識別するUI検査と失敗時のエラー注釈を追加して再検証する。
+Android CIでdebug APK作成とエミュレーター表示確認に成功した。通常アプリ/Storybookそれぞれの文字、入口を識別する操作UI、紙色・Lucide線色の実スクリーンショット検査を確認した。検証コードのコミットは`ba7e1c7`、[成功したAndroid実行](https://github.com/uraaaa24/tabi-log/actions/runs/42345684294)と[Quality実行](https://github.com/uraaaa24/tabi-log/actions/runs/42345684275)を参照。共通チェックは12ファイル・159テスト成功、ブラウザStorybook、4ケースのnative-bundles、commitlintも成功。

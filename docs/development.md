@@ -26,7 +26,7 @@ pnpm build-storybook
 Expo Goではなく`expo-dev-client`入りのDevelopment Buildを使用する。EASへの登録・クラウドビルド契約・アプリ用APIキーは不要。
 
 - iOS：macOS、対応するXcode本体、Command Line Tools、CocoaPodsを準備する。実機はDeveloper Modeと署名チームの設定が必要。SDK 57の[環境要件](https://docs.expo.dev/versions/v57.0.0/)と[公式ローカルビルド手順](https://docs.expo.dev/guides/local-app-development/)を確認する。
-- Android：Android Studio、SDK、JDKとエミュレーター、またはUSBデバッグを有効にした端末を準備する。`ANDROID_HOME`や`adb devices`で接続を確認する。
+- Android：Android Studio、SDK、JDK 17（CIではTemurin 17.0.21）とエミュレーター、またはUSBデバッグを有効にした端末を準備する。`ANDROID_HOME`や`adb devices`で接続を確認する。
 
 ```bash
 # MacでiOSシミュレーター向けに生成・ビルド・インストール
@@ -108,7 +108,7 @@ pnpm exec expo export --platform android --platform ios --source-maps --no-bytec
 - Development Build向けMetroの起動、Android向けmanifest応答と開発用JSの取得を確認。offlineモードではmanifest素材解決の警告が出たため、ネイティブのフォント・アイコン表示は未確認。
 - 通常アプリ・ネイティブStorybookそれぞれのAndroid/iOS向けMetro JSエクスポート成功（計4ケース）。CompilerとNativeWindの生成物、製品へのStorybook混入防止を確認。
 - ChromiumでStorybookの通常文・長文、スタイル、Lucide SVGを確認。Vite生成物にもCompilerのキャッシュ生成を確認。
-- ネイティブバイナリのビルド、iPhone実機、Androidエミュレーター・実機、ネイティブUI・読み上げ・WorkletsのUIスレッド実行は未実施。
+- Android CIでdebug APKの作成とエミュレーターでの通常アプリ/ネイティブStorybookの表示・紙色・Lucide描画検査に成功。iOSバイナリ、iPhone/Android実機、読み上げ・WorkletsのUIスレッド動作は未確認。実機確認はユーザーの方針で後日行う。
 - GitHub Actionsのファイルは更新済み。既存3チェックのリモート成功を確認済み。今回追加するCIの結果と、必須チェック・マージ保護の適用は段階1一覧を参照。人がレビュー・マージを担当する。
 - Storybookの開発用出力には大きなchunkの警告が出る。製品バンドルとは分離されており、警告を隠す閾値変更は行っていない。
 
