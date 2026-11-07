@@ -1,0 +1,16 @@
+import type { ExpoConfig } from 'expo/config'
+
+const config: ExpoConfig = {
+  name: '旅の記録',
+  slug: 'tabi-log',
+  scheme: 'tabilog',
+  version: '0.1.0',
+  orientation: 'portrait',
+  ios: { bundleIdentifier: 'dev.tabilog.app' },
+  android: { package: 'dev.tabilog.app' },
+  userInterfaceStyle: 'light',
+  plugins: ['expo-router', 'expo-dev-client'],
+  experiments: { reactCompiler: true },
+}
+
+export default config

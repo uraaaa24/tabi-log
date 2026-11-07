@@ -4,7 +4,7 @@
 
 バックアップ・復元はMVPから除外した。react-native-zip-archive・expo-sharing・バックアップ検証用ValibotはMVPへ導入しない。将来のためだけにbackup機能フォルダや処理を先行実装しない。
 
-React Native + Expo + TypeScriptと、以下に記載するライブラリの採用方針を確認済み。具体的なバージョンや一部の実装方式は未確定で、アプリ実装は未開始。HTMLモックは見た目と操作を確認する資料として扱う。
+React Native + Expo + TypeScriptの初期構築を実装済み。実装した範囲・固定した版・公式情報の根拠・検証結果は[開発手順](development.md)を参照する。以下には製品機能の採用方針と過去の検討案も含む。SQLite・写真保存・地図などは未実装で、採用方針を実装済みと読み替えない。HTMLモックは見た目と操作を確認する資料として扱う。
 
 保存対象の関係と、保存・削除の整合性は[端末内データの設計案](data-design.md)で具体化する。
 
@@ -23,10 +23,10 @@ React Native + Expo + TypeScriptと、以下に記載するライブラリの採
 
 ## 個別に確認した採用方針
 
-- React Compilerを初期構築で導入・有効化する方針を確認済み。[Expoの公式手順](https://docs.expo.dev/guides/react-compiler/)と[Reactの導入資料](https://react.dev/learn/react-compiler/installation)を参照し、採用するExpo・Reactに対応した依存の版と設定を確定する。NativeWind・Reanimated・Workletsとの併用、MetroとブラウザStorybook（Vite）の各変換設定・コンパイル結果を検証する。Expo側の有効化だけでStorybookにも適用済みとは扱わない。LintはOxlintを維持し、公式資料のESLint設定例をそのまま追加しない。現時点ではCompilerの依存追加・有効化・動作検証は未実施。
-- Expoアプリを1つのプロジェクトとして構成し、Storybook・Vitestも同じプロジェクト内で管理する。アプリ・UI・ロジックを別パッケージへ分割せず、フォルダで整理する。基本のディレクトリ構成は後述の方針に従う。現在は仕様整理のみで、初期構築・インストールは開始しない。
-- 実機開発はDevelopment Buildを採用し、手元のMacでExpo CLIとXcode・Android Studioを使ってビルドする。[公式の導入方針](https://docs.expo.dev/develop/development-builds/introduction/)に沿って`expo-dev-client`を導入する。クラウドビルド契約は開発の前提にしない。具体的な環境準備・署名設定は未実施。通常のTypeScript変更とネイティブ依存・設定変更で必要な再ビルドを区別する。
-- Lintには[Oxlint](https://oxc.rs/docs/guide/usage/linter.html)、整形には[Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)、Gitフックの管理には[Lefthook](https://lefthook.dev/configuration/)を採用する。ESLint・Prettier・Huskyは標準構成に追加しない。採用バージョンと具体的なルール・実行タイミングは未決定。
+- React Compilerを初期構築で導入・有効化する方針を確認済み。[Expoの公式手順](https://docs.expo.dev/guides/react-compiler/)と[Reactの導入資料](https://react.dev/learn/react-compiler/installation)を参照し、採用するExpo・Reactに対応した依存の版と設定を確定する。NativeWind・Reanimated・Workletsとの併用、MetroとブラウザStorybook（Vite）の各変換設定・コンパイル結果を検証する。Expo側の有効化だけでStorybookにも適用済みとは扱わない。LintはOxlintを維持し、公式資料のESLint設定例をそのまま追加しない。Compilerは1.0.0で固定して有効化済み。Metro（Android/iOS）とStorybook Viteの変換を検証し、実機での実行は未確認。
+- Expoアプリを1つのプロジェクトとして構成し、Storybook・Vitestも同じプロジェクト内で管理する。アプリ・UI・ロジックを別パッケージへ分割せず、フォルダで整理する。基本のディレクトリ構成は後述の方針に従う。単一プロジェクトとして初期構築済み。製品機能は後続段階で実装する。
+- 実機開発はDevelopment Buildを採用し、手元のMacでExpo CLIとXcode・Android Studioを使ってビルドする。[公式の導入方針](https://docs.expo.dev/develop/development-builds/introduction/)に沿って`expo-dev-client`を導入する。クラウドビルド契約は開発の前提にしない。Development Buildの依存とapp configは構築済み。Xcode・Android SDK・署名と実機でのビルドは未確認。通常のTypeScript変更とネイティブ依存・設定変更で必要な再ビルドを区別する。
+- Lintには[Oxlint](https://oxc.rs/docs/guide/usage/linter.html)、整形には[Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)、Gitフックの管理には[Lefthook](https://lefthook.dev/configuration/)を採用する。ESLint・Prettier・Huskyは標準構成に追加しない。導入済みの版・ルール・フック設定を引き継ぐ。具体的なコマンドはAGENTS.mdと開発手順を参照する。
 - 記録の保存には`expo-sqlite`を使う。
 - ORMは追加せず、SQLで読み書きする。画面からSQLを直接呼ばず、保存・取得を担当する小さな関数にまとめる。
 - 写真の画像本体はDBに埋め込まず、端末内のファイルとして保存する。
@@ -44,7 +44,7 @@ React Native + Expo + TypeScriptと、以下に記載するライブラリの採
 - UIはReact Nativeの基本部品を組み合わせて独自実装する。UIキットは導入しない。
 - 操作用アイコンにはLucideの`lucide-react-native`を採用する。[公式の導入方法](https://lucide.dev/guide/react-native/getting-started)に従い、採用済みの`react-native-svg`を利用する。必要なアイコンを個別にインポートし、大きさ・色・線幅を共通化する。具体的なバージョンはExpoが対応するSVGの版との整合を確認して定める。
 - スタイルにはNativeWindを採用する。通常の余白・色・文字・配置に使い、写真ごとの計算値はstyle、指操作中の表示更新はReanimatedで扱う。採用版とExpo・ブラウザStorybookの適合は別途確認する。
-- 独自UIの確認用にStorybookを開発環境へ組み込む。実装開始前の採用方針であり、現在のリポジトリへのインストールやアプリ構築はまだ行わない。
+- 独自UIの確認用にStorybookを開発環境へ組み込む。ブラウザ版を構築済み。ネイティブ版は別入口の実装・実機検証を残す。
 
 ## プロジェクト内の構成（方針決定）
 
@@ -61,7 +61,7 @@ src/
 - 機能ごとの処理はfeatures、共通UIはcomponents、永続化の具体的な処理はstorageへ置く。画面の入口であるappへ処理を集中させない。
 - VitestのテストとStorybookの表示例は、対象の部品・処理の近くに置く。画面遷移用のapp内には置かず、必要な表示部品・処理をfeatures等へ切り出す。
 - ブラウザStorybookの設定やネイティブ機能の代替処理は同じプロジェクトで管理する。具体的な設定ファイルや配置は初期構築時に確認する。
-- このツリーは構成方針であり、まだアプリのディレクトリやコードは作成しない。
+- このツリーは製品全体の構成方針。現在はsrc/appとsrc/componentsを作成済みで、未実装の機能フォルダは先行作成しない。
 
 ## 第一候補
 
@@ -247,7 +247,7 @@ Queryなしでも、画面内の取得中・失敗・結果、再取得の契機
 - 自動テストは、日付の判定、削除対象の判定、写真配置の安定性など、データ保護や整合性に関わる処理を中心に書く。
 - Storybookでは、紙・木目・ピンの質感、文字量や写真枚数による表示を確認する。
 - 実機では、写真選択、記録の保存、指操作、処理途中の終了からの復旧を確認する。純粋な関数のテストだけでOS連携や復旧が保証されたとは扱わない。
-- テスト実行には[Vitest](https://vitest.dev/guide/)を採用する。Jest・jest-expoは使わない。具体的なバージョンとテストケースは未決定。
+- テスト実行には[Vitest](https://vitest.dev/guide/)を採用する。Jest・jest-expoは使わない。導入済みVitest 5.1.0と既存テストを引き継ぐ。製品ロジックのテストケースは後続の実装に合わせて追加する。
 - 日付判定・写真配置などのロジックを、React Native・Expoのネイティブモジュールを直接読み込まずにテストできる構成にする。ファイル・DB操作を伴う処理は、小さな操作関数を差し替えて失敗時の分岐や呼び出し順を検証する。汎用的な抽象化基盤は追加しない。
 - Vitestで差し替えた処理のテストは、実際のSQLite・ファイル操作の動作確認の代わりにはしない。これらは両OSで別途確認する。モジュール差し替えについては[Vitest公式資料](https://vitest.dev/guide/mocking/modules)を参照。
 
@@ -258,10 +258,10 @@ Queryなしでも、画面内の取得中・失敗・結果、再取得の契機
 - ハーネスは品質チェックの自動化に加え、AIエージェントが仕様に従って開発・検証する環境を含め、Codex cloudでの利用を目指す。
 - 意思決定は人が行う。AIは合意済みの仕様・構成・作業範囲に沿って実装・検証・PR準備を担当し、仕様や設計方針を独断で確定・変更しない。判断が必要な論点は選択肢・推奨案・影響を整理して人へ確認する。合意内の通常の実装詳細や修正は自律的に進め、細部ごとの承認を増やさない。
 - レビュー・マージは人が担当する。AIはPRに変更内容・検証結果・実機確認などの未実施項目を明記する。AIの実装開始は、従来どおりユーザーの明示的な許可後とする。
-- pnpm・Oxlint・Oxfmt・Vitest・Lefthookを採用する。実際の導入はアプリ初期構築への明示的な許可後に行う。
-- CIはGitHub Actionsを採用し、PRの共通チェックをマージ前の必須条件とする。手元・Codex cloud・CIで共通の`pnpm check`を実行し、Lint・整形確認・型チェック・Vitestをまとめて確認する方針。具体的なスクリプト・ワークフロー・リポジトリのマージ保護設定は未構築。
-- ブラウザ版StorybookのビルドもPRの必須チェックとする。共通の`pnpm check`とは別のチェックとしてCIで実行する。ビルド成功は、画面の読み込み・設定上の問題の検出に使い、見た目の正しさやネイティブ動作の検証済みという意味にはしない。具体的な実行コマンドは初期構築時に定める。
-- 依存方向の違反を自動検査し、共通チェックとCIに含める。共通UIからSQLite・ファイル操作を直接呼ばないこと、日付判定・写真配置等の計算処理からネイティブ機能を直接呼ばないことを最初の対象とする。具体的な対象ファイル・許可する依存先・検査方式は初期構築前に定める。
+- pnpm・Oxlint・Oxfmt・Vitest・Lefthookを採用する。既存の導入を引き継いでおり、版はpackage.jsonとロックファイルを参照する。
+- CIはGitHub Actionsを採用し、PRの共通チェックをマージ前の必須条件とする。手元・Codex cloud・CIで共通の`pnpm check`を実行し、Lint・整形確認・型チェック・Vitestをまとめて確認する方針。スクリプトとワークフローは構築済み。リモートCIとマージ保護設定の適用は未確認。
+- ブラウザ版StorybookのビルドもPRの必須チェックとする。共通の`pnpm check`とは別のチェックとしてCIで実行する。ビルド成功は、画面の読み込み・設定上の問題の検出に使い、見た目の正しさやネイティブ動作の検証済みという意味にはしない。`pnpm build-storybook`をCIに追加済み。必須チェック設定は未確認。
+- 依存方向の違反を自動検査し、共通チェックとCIに含める。共通UIからSQLite・ファイル操作を直接呼ばないこと、日付判定・写真配置等の計算処理からネイティブ機能を直接呼ばないことを最初の対象とする。導入済みのscripts/check-dependencies.mjsを引き継ぐ。
 - 再現用の架空の記録と小さな画像をリポジトリで管理し、Storybookとテストで共用する。写真なし・長い日記・縦横の写真が混在する記録などを含め、個人の実際の記録や写真は使わない。数千枚規模の確認用データは必要時に生成し、大量の画像をリポジトリへ追加しない。具体的なデータ形式・生成方法は未決定。
 - ローカル・Codex cloud共通のAI作業の完了条件は、変更に応じたテストの追加・更新、`pnpm check`とブラウザStorybookビルドの成功、仕様に影響する変更に対応した関連ドキュメントの更新とする。実機確認などの未実施の検証は完了報告に明記し、自動チェックの成功を実機検証済み・公開準備完了とは扱わない。まだ実行環境を構築していない段階では、これらを実行済みとして報告しない。
 - Lefthookのコミット時チェックはステージ済みファイルのLint・整形確認、プッシュ時チェックは全体の`pnpm check`とする。PRのCIでも同じ`pnpm check`を実行する。フックは検出した問題で処理を止め、自動修正・自動ステージは行わない。修正用コマンドは別に用意する。対応拡張子の絞り込みや設定ファイル変更時の検査範囲は初期構築時に具体化する。
@@ -273,13 +273,13 @@ Queryなしでも、画面内の取得中・失敗・結果、再取得の契機
 - ツールのバージョンとロックファイルを固定し、共用する架空データを使って新しいクラウド環境でも検証できる構成を検討する。
 - クラウドでは静的チェック・ロジックのテスト・ブラウザStorybookのビルドを検証対象の候補にする。ネイティブのSQLite・ファイル操作・指操作は既定の実機検証を残す。
 - 画面撮影の方式は未決定。
-- 現段階では方針整理のみとし、依存のインストール・Gitフックの設定・クラウド環境の接続・アプリ初期構築は行わない。
+- 依存・フック・アプリ初期構築とクラウドの共通検証は実施済み。実施範囲と未実施項目は開発手順を参照する。
 
 ### 公式資料に基づく確認と制約
 
 - [OpenAI公式のクラウド環境資料](https://learn.chatgpt.com/docs/environments/cloud-environments)では、環境の準備・テスト・公開と、リポジトリ内のスキルを利用する方法が案内されている。個人端末のスキルは自動同期されない。
 - 同資料の確認時点では、クラウド環境のComputer and browser useは未対応と記載されている。ブラウザで自律操作・画面撮影までできることを前提にしない。コマンド経由のブラウザ検証の可否は、選んだ環境で別途確認する。
-- [AGENTS.mdの公式資料](https://learn.chatgpt.com/docs/agent-configuration/agents-md)を基に、リポジトリで共有できる簡潔な作業ルールを設計する。まだ実ファイルは作成しない。
+- [AGENTS.mdの公式資料](https://learn.chatgpt.com/docs/agent-configuration/agents-md)を基に、リポジトリで共有できる簡潔な作業ルールを設計する。AGENTS.mdを作成済み。
 
 ## 写真一覧の描画候補（第一候補は確認済み、採用確定前）
 
@@ -289,11 +289,11 @@ Queryなしでも、画面内の取得中・失敗・結果、再取得の契機
 - 写真の順序を変えるoptimizeItemArrangementは既定で有効とされているため、追加順を維持する要件に合わせて無効化等を検討する。写真の順序・配置情報をセル内部の一時状態に依存させない。
 - 具体的なバージョン、Expo・ブラウザStorybookとの適合、寸法・回転後の余白、写真数が多い場合の描画・仮想化を検証する。まだライブラリの採用・インストールは行わない。
 
-## バージョン互換性の調査（採用版は未確定）
+## バージョン互換性の調査と採用結果
 
 - [Expo SDKの公式対応表](https://docs.expo.dev/versions/latest/)ではSDK 58にReact Native 0.88、SDK 57にReact Native 0.86が対応している。Expoの版とReact Nativeの版を独立に最新版へ揃えない。
 - [NativeWindの公式導入資料](https://www.nativewind.dev/docs/getting-started/installation)は安定版4.2.7についてExpo SDK 57対応を明記し、Tailwind CSS 3の構成を案内している。v5は別のRC版として案内されている。SDK 58との組み合わせはこの記述だけでは確認できず、非対応と断定もしない。
-- Expo SDK 57・NativeWind 4.2.7・Tailwind CSS 3を初期構築の第一候補とする方針を確認済み。バージョンの最終確定と依存全体の動作検証は未実施。初期構築の時点で公式情報を再確認し、ネイティブ表示とブラウザStorybookの両方を検証する。
+- Expo SDK 57・NativeWind 4.2.7・Tailwind CSS 3を初期構築の第一候補とする方針を確認済み。この組み合わせを採用し、直接依存の版とロックファイルを固定した。公式SDK対応表・配布metadata・実際の変換とブラウザ表示を確認した。ネイティブ表示は未確認。
 - [ブラウザStorybook](https://storybook.js.org/docs/get-started/frameworks/react-native-web-vite)はReact Native WebとViteを使う。[NativeWindの他バンドラー向け資料](https://www.nativewind.dev/docs/guides/other-bundlers)はMetroを公式対応とし、他バンドラーではJSXランタイム等の設定を必要としている。最小の共通部品を使ってネイティブとStorybookの両方にスタイルが反映され、静的ビルドが通ることを確認するまで、組み合わせを検証済みとしない。
 - Oxfmtを使う方針に従い、NativeWindの導入例にあるPrettier用プラグインはそのまま追加しない。
 

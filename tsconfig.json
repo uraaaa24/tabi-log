@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "lib": ["ES2023"],
+    "lib": ["ES2023", "DOM"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "strict": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node", "react"],
+    "jsx": "react-jsx"
   },
   "include": [
     "scripts/lint/**/*.ts",
@@ -17,6 +18,14 @@
     "oxfmt.config.ts",
     "vitest.config.ts",
     "commitlint.config.ts",
-    "scripts/commit/**/*.ts"
-  ]
+    "scripts/commit/**/*.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".storybook/**/*.ts",
+    "app.config.ts",
+    "nativewind-env.d.ts",
+    "scripts/build/**/*.ts",
+    "scripts/fixtures/**/*.ts"
+  ],
+  "extends": "expo/tsconfig.base"
 }
