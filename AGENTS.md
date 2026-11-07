@@ -32,7 +32,7 @@ Nodeは `.node-version`、pnpmは `package.json` の `packageManager` に合わ�
 - `pnpm commitlint --edit <message-file>`：コミットメッセージを検査。
 - `pnpm hooks:install`：Lefthookを有効化。フックは検査のみとし、自動修正・自動ステージを行わない。
 
-Expo・Storybookの初期構築では、アプリ依存と起動・ビルドコマンドを追加し、TypeScript設定をExpoに対応させて `src/` も型チェック対象に含める。Tailwind設定へNativeWindのpresetを追加し、CIにも `pnpm build-storybook` を追加する。既存のLint・整形・テスト設定は引き継ぐ。
+Expo・Storybookの基盤は構築済み。`pnpm start`でDevelopment Build向けMetro、`pnpm ios`・`pnpm android`でローカルビルド、`pnpm storybook`でブラウザ表示、`pnpm build-storybook`で静的ビルドを行う。`pnpm check`にはMetro・StorybookのCompiler/NativeWind/Worklets変換テストを含む。詳細と未実施のネイティブ検証は[開発手順](docs/development.md)を参照する。既存のLint・整形・テスト設定を維持する。
 
 ## コードと例外
 

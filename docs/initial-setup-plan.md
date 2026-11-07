@@ -2,11 +2,11 @@
 
 ## 状態と目的
 
-未着手の作業計画。初期構築にはユーザーの明示的な許可が必要。この文書の作成や、開発順・技術候補への同意だけで実装開始の許可があったとは扱わない。
+ユーザーの明示的な許可を受けてアプリ基盤を構築した。既存のLint・整形・型チェック・Vitest・独自Lint・Gitフック・CIを引き継ぎ、Expo Router、Development Build設定、NativeWind・Lucide共通部品、ブラウザStorybook、React Compilerを追加した。製品機能は今回の対象外。起動・固定版・検証結果は[開発手順](development.md)を参照。
 
 目的は、ローカルとCodex cloudで合意済みの仕様に沿って作業し、同じコマンドで検証できる開発基盤を用意すること。製品機能の具体化が残る項目は[仕様書の案内](README.md)に残す。
 
-## 構築するもの
+## 構築範囲（計画と実施状況）
 
 1. pnpm管理の単一Expo・TypeScriptプロジェクト。Expo SDK 57・NativeWind 4.2.7・Tailwind CSS 3を第一候補に、対応するReact・React Native・ネイティブ依存を確認して版を固定する。Node・pnpmの採用版とロックファイルも管理する。 React Compilerも導入・有効化し、採用するExpo・Reactに対応した版と設定を固定する。
 2. 共通の小さな表示部品を用意し、NativeWind・Lucideの表示をネイティブとReact Native Web版Storybookで確認する。ブラウザ用に別の製品UIを作らない。
@@ -36,7 +36,11 @@
 - ローカルのGitフックとCIが共通の検証処理を呼ぶ。CI未実行・必須チェック未適用なら、その状態を明記する。
 - ネイティブ表示・iPhone実機・Androidエミュレーター・Codex cloudについて、実施した検証と未実施の検証を区別する。
 
-## 事前確認と残件
+## 実施状況と残件
+
+- 共通部品のMetro（Android/iOS）とStorybook（Vite）変換をテストで確認した。MetroのJSエクスポートとブラウザ表示も確認した。
+- 初期構築のコード・設定・CI追加は実装済み。Xcode/Android SDKによるネイティブバイナリのビルド、実機・エミュレーター表示、ネイティブStorybookの入口は未実施。
+- GitHub Actionsのリモート実行と必須チェックの指定は、人によるレビュー時に確認する。以下は初期調査時の記録を含む。
 
 - 調査時のローカル環境はNode v26.0.0、pnpm 11.10.0。これは採用版の決定ではない。Expo・Storybook・Vitest等との互換性を確認し、プロジェクトで使用する版を固定する。
 - xcode-selectの選択先はCommandLineTools。Xcode本体・Android Studio・SDK・署名・端末接続は別途確認が必要。
