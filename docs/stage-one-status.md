@@ -39,7 +39,11 @@
 
 - 現在のLinux cloudにXcode/iPhoneはなく、iOSネイティブビルドと実機表示は実行できない。Macで`pnpm ios --device`を行う。
 - cloudに`/dev/kvm`がないため、Androidエミュレーターの高速実行を前提にしない。Android CIのホスト環境と、ローカルのAndroid Studioで検証する。
-- GitHubのPR/checks/rulesetsの読み取りは可能だが、classic branch protectionの読み取りは`Resource not accessible by integration`（HTTP 403）。ユーザーのadmin表示と、連携トークンが使える管理権限は異なる。既存の保護設定を確認できない状態で置換しない。
+- GitHubのPR/checks/rulesetsの読み取りは可能だが、classic branch protectionの読み取りは`Resource not accessible by integration`（HTTP 403）。ユーザーのadmin表示と、連携トークンが使える管理権限は異なる。既存の保護設定を確認できない状態で置換しない。既存設定を置換しない追加方式のruleset作成もHTTP 403で拒否された。
 - 必須チェックは`check`・`storybook`・`commitlint`・`native-bundles`・`android-smoke`を候補とし、新規CIの成功後にmainに適用する。設定を人が適用した場合も、適用済みかどうかを明記する。
 
 段階1全体の完了は、必要なネイティブ表示と必須チェック設定まで確認して判断する。残件を文書化したことだけで完了とは扱わない。
+
+## 環境設定の保存
+
+cloud準備スクリプトは導入・再実行を確認済み。設定ドラフトへのinstall_script/start_skill保存は`draft_not_editable`で拒否され、最新ドラフトを再取得しても保存できなかった。適用案を[cloud-environment-config.json](cloud-environment-config.json)に保存した。PRをmainへマージ後、環境設定から新しいセットアップチャットを開き、この2フィールドを適用する。保存済み・公開済みとは扱わない。
