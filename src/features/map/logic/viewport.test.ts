@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { anchoredOffset, boundedOffset, fittedMapSize } from './viewport'
+import {
+  anchoredOffset,
+  boundedOffset,
+  fittedMapSize,
+  mapTransform,
+} from './viewport'
 
 describe('指の位置を基準にした地図の拡大縮小', () => {
   it('中心以外でつまんでも、指の下の地図上の点を維持する', () => {
@@ -47,5 +52,11 @@ describe('指の位置を基準にした地図の拡大縮小', () => {
     expect(content.height).toBe(390)
     expect(boundedOffset(300, 740, 2, content.width)).toBe(0)
     expect(boundedOffset(-300, 390, 2, content.height)).toBe(-195)
+  })
+  it('SVG内部の拡大でも画面上の移動距離と中心を維持する', () => {
+    const matrix = mapTransform(3, 60, -90, 0.75)
+    expect((matrix[0] * 275 + matrix[4] - 275) * 0.75).toBe(60)
+    expect((matrix[3] * 380 + matrix[5] - 380) * 0.75).toBe(-90)
+    expect(mapTransform(1, 0, 0, 0)).toEqual([1, 0, 0, 1, 0, 0])
   })
 })

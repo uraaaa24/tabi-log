@@ -29,3 +29,21 @@ export function anchoredOffset(
   'worklet'
   return focal - ((initialFocal - initialOffset) / initialScale) * scale
 }
+
+export function mapTransform(
+  scale: number,
+  offsetX: number,
+  offsetY: number,
+  drawingScale: number,
+): [number, number, number, number, number, number] {
+  'worklet'
+  const ratio = drawingScale || 1
+  return [
+    scale,
+    0,
+    0,
+    scale,
+    275 * (1 - scale) + offsetX / ratio,
+    380 * (1 - scale) + offsetY / ratio,
+  ]
+}

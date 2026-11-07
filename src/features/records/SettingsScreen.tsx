@@ -22,7 +22,7 @@ export const SettingsScreen = () => {
         <Paper>
           <Text style={{ ...textStyle, fontWeight: '600' }}>地図について</Text>
           <Text style={textStyle}>
-            出典：地球地図日本（国土地理院）。GeoJSONへの変換・都道府県名とIDの付与：dataofjapan/land。アプリの表示用に形状・座標・配色を加工しています。
+            出典：地球地図日本（国土地理院）。GeoJSONへの変換・都道府県名とIDの付与：dataofjapan/land。アプリの木製パーツ風の表示用に県の輪郭や小島を簡略化し、座標・配色を加工しています。
           </Text>
           <Button
             secondary

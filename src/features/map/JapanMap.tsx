@@ -2,14 +2,23 @@ import { useState } from 'react'
 import { Platform, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, {
-  useAnimatedStyle,
+  useAnimatedProps,
   useSharedValue,
 } from 'react-native-reanimated'
 import Svg, { Circle, G, Line, Path } from 'react-native-svg'
+import type { GProps } from 'react-native-svg'
 
 import { colors } from '../../components/TravelUI'
 import prefectures from './domain/prefectures.json'
-import { anchoredOffset, boundedOffset, fittedMapSize } from './logic/viewport'
+import {
+  anchoredOffset,
+  boundedOffset,
+  fittedMapSize,
+  mapTransform,
+} from './logic/viewport'
+
+const AnimatedMap = Animated.createAnimatedComponent(G)
+const browserSvg = Platform.OS === 'web'
 
 type JapanMapProps = Readonly<{
   visited: readonly string[]
@@ -87,13 +96,17 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
         )
       }
     })
-  const style = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: x.value },
-      { translateY: y.value },
-      { scale: scale.value },
-    ],
-  }))
+  const animatedProps = useAnimatedProps<GProps & { matrix?: number[] }>(() => {
+    const matrix = mapTransform(
+      scale.value,
+      x.value,
+      y.value,
+      contentSize.width / 550,
+    )
+    // Native SVG groups receive a matrix; browser SVG groups receive transform.
+    // Keep the outer view fixed so zoom redraws vectors instead of enlarging its bitmap.
+    return browserSvg ? { transform: matrix } : { matrix }
+  })
   return (
     <View
       style={{
@@ -113,14 +126,12 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
           style={{ flex: 1 }}
           collapsable={false}
         >
-          <Animated.View
-            style={[{ width: size.width, height: size.height }, style]}
+          <Svg
+            width={size.width}
+            height={size.height}
+            viewBox="0 0 550 760"
           >
-            <Svg
-              width={size.width}
-              height={size.height}
-              viewBox="0 0 550 760"
-            >
+            <AnimatedMap animatedProps={animatedProps}>
               {prefectures.map((place) => (
                 <G
                   key={place.id}
@@ -137,7 +148,11 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
                     d={place.path}
                     fill={colors.land}
                     stroke={colors.boardBoundary}
-                    strokeWidth={0.45}
+                    strokeWidth={0.65}
+                    vectorEffect="non-scaling-stroke"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    fillRule="evenodd"
                   />
                   {visited.includes(place.id) && (
                     <G>
@@ -165,8 +180,8 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
                   )}
                 </G>
               ))}
-            </Svg>
-          </Animated.View>
+            </AnimatedMap>
+          </Svg>
         </View>
       </GestureDetector>
     </View>
