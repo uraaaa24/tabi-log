@@ -63,7 +63,7 @@ pnpm storybook:native --android
 pnpm check:native-bundles
 ```
 
-公式の`withStorybook`が開発時の入口を`.rnstorybook/index.ts`に差し替える。NativeWindのglobal.cssをこちらでも読み込む。LiteUIにより追加のbottom-sheet・on-device addon・選択状態保存用の依存は不要。ブラウザ版と同じ`PaperCard.stories.tsx`を使う。製品ルートにはStorybookを追加しない。起動モード変更時は前のMetroを停止し、必要なら`--clear`でキャッシュを更新する。
+公式の`withStorybook`が開発時の入口を`.rnstorybook/index.ts`に差し替える。NativeWindのglobal.cssをこちらでも読み込む。LiteUIを使い、on-device addonや選択状態の保存は追加しない。Storybook本体の推移依存にはbottom-sheet等が含まれるが、MetroでフルUIのJSを除外する。推移peerで取得されたGesture HandlerはSDK 57対応版2.32.0に直接固定する。ブラウザ版と同じ`PaperCard.stories.tsx`を使う。製品ルートにはStorybookを追加しない。起動モード変更時は前のMetroを停止し、必要なら`--clear`でキャッシュを更新する。
 
 `pnpm storybook:generate`で登録ファイルを生成する。`pnpm typecheck`も先に生成するため、fresh install後のCIでも型チェックできる。生成物はGit管理せず、手書きファイルのルールは維持する。
 
@@ -103,10 +103,10 @@ pnpm exec expo export --platform android --platform ios --source-maps --no-bytec
 
 2026-11-07、Codex cloudのLinuxで実行。
 
-- `pnpm install --frozen-lockfile`成功。`pnpm check`成功（10ファイル、145テスト）。`pnpm build-storybook`成功。
+- `pnpm install --frozen-lockfile`成功。`pnpm check`成功（11ファイル、155テスト）。`pnpm build-storybook`成功。
 - `expo prebuild --no-install --platform all`でiOS/Androidのネイティブプロジェクト生成を確認。これはバイナリのビルドではない。
 - Development Build向けMetroの起動、Android向けmanifest応答と開発用JSの取得を確認。offlineモードではmanifest素材解決の警告が出たため、ネイティブのフォント・アイコン表示は未確認。
-- Android/iOS向けMetro JSエクスポート成功。CompilerとNativeWindの生成物、Storybook除外を確認。
+- 通常アプリ・ネイティブStorybookそれぞれのAndroid/iOS向けMetro JSエクスポート成功（計4ケース）。CompilerとNativeWindの生成物、製品へのStorybook混入防止を確認。
 - ChromiumでStorybookの通常文・長文、スタイル、Lucide SVGを確認。Vite生成物にもCompilerのキャッシュ生成を確認。
 - ネイティブバイナリのビルド、iPhone実機、Androidエミュレーター・実機、ネイティブUI・読み上げ・WorkletsのUIスレッド実行は未実施。
 - GitHub Actionsのファイルは更新済み。既存3チェックのリモート成功を確認済み。今回追加するCIの結果と、必須チェック・マージ保護の適用は段階1一覧を参照。人がレビュー・マージを担当する。
