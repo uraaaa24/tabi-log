@@ -9,6 +9,7 @@ import Svg, { Circle, G, Line, Path } from 'react-native-svg'
 import type { GProps } from 'react-native-svg'
 
 import { colors } from '../../components/TravelUI'
+import mapFrame from './domain/map-frame.json'
 import prefectures from './domain/prefectures.json'
 import {
   anchoredOffset,
@@ -27,7 +28,7 @@ type JapanMapProps = Readonly<{
 
 export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
   const [size, setSize] = useState({ width: 0, height: 0 })
-  const contentSize = fittedMapSize(size.width, size.height)
+  const contentSize = fittedMapSize(size.width, size.height, mapFrame)
   const scale = useSharedValue(1)
   const x = useSharedValue(0)
   const y = useSharedValue(0)
@@ -101,7 +102,8 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
       scale.value,
       x.value,
       y.value,
-      contentSize.width / 550,
+      contentSize.width / mapFrame.width,
+      mapFrame,
     )
     // Native SVG groups receive a matrix; browser SVG groups receive transform.
     // Keep the outer view fixed so zoom redraws vectors instead of enlarging its bitmap.
@@ -129,7 +131,7 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
           <Svg
             width={size.width}
             height={size.height}
-            viewBox="0 0 550 760"
+            viewBox={`${mapFrame.x} ${mapFrame.y} ${mapFrame.width} ${mapFrame.height}`}
           >
             <AnimatedMap animatedProps={animatedProps}>
               {prefectures.map((place) => (

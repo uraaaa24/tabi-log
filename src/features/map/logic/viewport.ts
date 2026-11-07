@@ -1,8 +1,15 @@
-export function fittedMapSize(width: number, height: number) {
-  if (width * 760 <= height * 550) {
-    return { width, height: (width * 760) / 550 }
+type MapFrame = Readonly<{
+  x: number
+  y: number
+  width: number
+  height: number
+}>
+
+export function fittedMapSize(width: number, height: number, frame: MapFrame) {
+  if (width * frame.height <= height * frame.width) {
+    return { width, height: (width * frame.height) / frame.width }
   }
-  return { width: (height * 550) / 760, height }
+  return { width: (height * frame.width) / frame.height, height }
 }
 
 export function boundedOffset(
@@ -35,6 +42,7 @@ export function mapTransform(
   offsetX: number,
   offsetY: number,
   drawingScale: number,
+  frame: MapFrame,
 ): [number, number, number, number, number, number] {
   'worklet'
   const ratio = drawingScale || 1
@@ -43,7 +51,7 @@ export function mapTransform(
     0,
     0,
     scale,
-    275 * (1 - scale) + offsetX / ratio,
-    380 * (1 - scale) + offsetY / ratio,
+    (frame.x + frame.width / 2) * (1 - scale) + offsetX / ratio,
+    (frame.y + frame.height / 2) * (1 - scale) + offsetY / ratio,
   ]
 }

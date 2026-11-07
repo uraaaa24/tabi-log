@@ -42,11 +42,47 @@ type Part = Readonly<{
   x: number
   y: number
 }>
+// 下北・能登・薩摩/大隅の半島が単純な塊にならないよう上限を控える。
+const peninsulaPrefectures = new Set([2, 17, 46])
 const sourceSha256 =
   'b2fa31a9ce37c006904a06b8afcaeaf5ceeff40ae365eca167e09fbfff052f00'
 const projectRing = (ring: readonly Point[]) =>
   ring.map(([x, y]) => [(x - 122) * 22, (46 - y) * 27] as const)
 const projectPolygon = (polygon: Polygon) => polygon.map(projectRing)
+
+const ringArea = (ring: readonly Point[]) =>
+  Math.abs(
+    ring.reduce((sum, point, index) => {
+      const next = ring[(index + 1) % ring.length]
+      return next ? sum + point[0] * next[1] - next[0] * point[1] : sum
+    }, 0),
+  ) / 2
+const polygonArea = (polygon: Polygon) => {
+  const outer = polygon[0]
+  return outer
+    ? ringArea(outer) -
+        polygon.slice(1).reduce((sum, ring) => sum + ringArea(ring), 0)
+    : 0
+}
+
+export function partsFrame(parts: readonly Part[]) {
+  const points = parts.flatMap((part) =>
+    [...part.path.matchAll(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/gu)].map(
+      (match) => [Number(match[1]), Number(match[2])] as const,
+    ),
+  )
+  if (!points.length) {
+    throw new Error('Map has no geometry')
+  }
+  const x = Math.floor(Math.min(...points.map((point) => point[0])) - 16)
+  const y = Math.floor(Math.min(...points.map((point) => point[1])) - 16)
+  return {
+    x,
+    y,
+    width: Math.ceil(Math.max(...points.map((point) => point[0])) + 16) - x,
+    height: Math.ceil(Math.max(...points.map((point) => point[1])) + 16) - y,
+  }
+}
 
 export function generateParts(data: Collection): Part[] {
   const directory = mkdtempSync(path.join(tmpdir(), 'tabi-map-'))
@@ -59,11 +95,25 @@ export function generateParts(data: Collection): Part[] {
       if (!geometry) {
         throw new Error('Missing source geometry')
       }
-      const coordinates =
+      const polygons =
         geometry.type === 'Polygon'
-          ? projectPolygon(geometry.coordinates)
+          ? [projectPolygon(geometry.coordinates)]
           : geometry.coordinates.map(projectPolygon)
-      return { ...feature, geometry: { type: geometry.type, coordinates } }
+      const areas = polygons.map(polygonArea)
+      const largest = areas.indexOf(Math.max(...areas))
+      const kept = polygons.filter(
+        (_polygon, index) => index === largest || (areas[index] ?? 0) >= 4,
+      )
+      return {
+        ...feature,
+        properties: {
+          ...feature.properties,
+          detailLimit: peninsulaPrefectures.has(feature.properties.id)
+            ? 2
+            : 3.5,
+        },
+        geometry: { type: 'MultiPolygon' as const, coordinates: kept },
+      }
     })
     writeFileSync(
       input,
@@ -80,13 +130,16 @@ export function generateParts(data: Collection): Part[] {
         '-clean',
         'snap-interval=0.01',
         'gap-width=0.02',
+        '-explode',
         '-simplify',
         'weighted',
-        'interval=3.5',
+        'variable',
+        'interval=Math.min(detailLimit, Math.sqrt($.area)*0.14)',
         'planar',
         'keep-shapes',
-        '-filter-islands',
-        'min-area=4',
+        '-dissolve',
+        'id',
+        'copy-fields=nam_ja',
         '-o',
         shapes,
         'format=geojson',
@@ -114,6 +167,28 @@ export function generateParts(data: Collection): Part[] {
         )?.geometry?.coordinates
         if (!geometry || !center) {
           throw new Error(`Prefecture disappeared: ${feature.properties.id}`)
+        }
+        const sourceFeature = features.find(
+          (item) => item.properties.id === feature.properties.id,
+        )
+        const originalArea =
+          sourceFeature?.geometry.coordinates.reduce(
+            (sum, polygon) => sum + polygonArea(polygon),
+            0,
+          ) ?? 0
+        const displayedPolygons =
+          geometry.type === 'Polygon'
+            ? [geometry.coordinates]
+            : geometry.coordinates
+        const displayedArea = displayedPolygons.reduce(
+          (sum, polygon) => sum + polygonArea(polygon),
+          0,
+        )
+        const ratio = displayedArea / originalArea
+        if (!Number.isFinite(ratio) || ratio < 0.8 || ratio > 1.2) {
+          throw new Error(
+            `Prefecture area distorted: ${feature.properties.id} (${ratio})`,
+          )
         }
         const rings =
           geometry.type === 'Polygon'
@@ -169,6 +244,10 @@ function main() {
   writeFileSync(
     'src/features/map/domain/prefectures.json',
     `${JSON.stringify(parts)}\n`,
+  )
+  writeFileSync(
+    'src/features/map/domain/map-frame.json',
+    `${JSON.stringify(partsFrame(parts))}\n`,
   )
   const vertices = parts.reduce(
     (total, part) => total + (part.path.match(/[ML]/gu) ?? []).length,
