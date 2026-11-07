@@ -1,6 +1,21 @@
-export function boundedOffset(offset: number, size: number, scale: number) {
+export function fittedMapSize(width: number, height: number) {
+  if (width * 760 <= height * 550) {
+    return { width, height: (width * 760) / 550 }
+  }
+  return { width: (height * 550) / 760, height }
+}
+
+export function boundedOffset(
+  offset: number,
+  viewportSize: number,
+  scale: number,
+  contentSize = viewportSize,
+) {
   'worklet'
-  const limit = (size * (scale - 1)) / 2
+  const limit = Math.max(0, (contentSize * scale - viewportSize) / 2)
+  if (limit === 0) {
+    return 0
+  }
   return Math.max(-limit, Math.min(limit, offset))
 }
 

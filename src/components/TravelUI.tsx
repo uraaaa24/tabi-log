@@ -3,20 +3,20 @@ import type { ReactNode } from 'react'
 import { Pressable, Text, View } from 'react-native'
 
 export const colors = {
-  background: '#F3E6CE',
-  surface: '#FFF4DC',
-  ink: '#55412E',
-  muted: '#7B634B',
-  line: '#DAC5A1',
-  primary: '#9E6447',
+  background: '#F7F3EB',
+  surface: '#FFFCF6',
+  ink: '#362F28',
+  muted: '#6E6257',
+  line: '#E1D7C9',
+  primary: '#88583D',
   onPrimary: '#FFFAF0',
-  soft: '#EAD2A7',
+  soft: '#EFE7DA',
   danger: '#9D3028',
   board: '#694229',
-  boardText: '#F2E4C9',
-  boardMuted: '#C5AE8D',
-  boardBoundary: '#705139',
-  land: '#C5A67A',
+  boardText: '#FFF3DE',
+  boardMuted: '#E0CEB4',
+  boardBoundary: '#8A6E50',
+  land: '#E0CBA6',
   pinNeedle: '#EEE5CD',
 } as const
 

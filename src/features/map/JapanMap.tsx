@@ -2,17 +2,14 @@ import { useState } from 'react'
 import { Platform, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, {
-  cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
-  withDecay,
-  withSpring,
 } from 'react-native-reanimated'
 import Svg, { Circle, G, Line, Path } from 'react-native-svg'
 
 import { colors } from '../../components/TravelUI'
 import prefectures from './domain/prefectures.json'
-import { anchoredOffset, boundedOffset } from './logic/viewport'
+import { anchoredOffset, boundedOffset, fittedMapSize } from './logic/viewport'
 
 type JapanMapProps = Readonly<{
   visited: readonly string[]
@@ -21,6 +18,7 @@ type JapanMapProps = Readonly<{
 
 export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
   const [size, setSize] = useState({ width: 0, height: 0 })
+  const contentSize = fittedMapSize(size.width, size.height)
   const scale = useSharedValue(1)
   const x = useSharedValue(0)
   const y = useSharedValue(0)
@@ -32,8 +30,6 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
   const pinching = useSharedValue(false)
   const pinch = Gesture.Pinch()
     .onStart((event) => {
-      cancelAnimation(x)
-      cancelAnimation(y)
       pinching.value = true
       startScale.value = scale.value
       startX.value = x.value
@@ -43,68 +39,53 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
     })
     .onUpdate((event) => {
       const next = Math.max(1, Math.min(6, startScale.value * event.scale))
-      x.value = anchoredOffset(
-        event.focalX - size.width / 2,
-        focalX.value,
-        startX.value,
-        startScale.value,
+      x.value = boundedOffset(
+        anchoredOffset(
+          event.focalX - size.width / 2,
+          focalX.value,
+          startX.value,
+          startScale.value,
+          next,
+        ),
+        size.width,
         next,
+        contentSize.width,
       )
-      y.value = anchoredOffset(
-        event.focalY - size.height / 2,
-        focalY.value,
-        startY.value,
-        startScale.value,
+      y.value = boundedOffset(
+        anchoredOffset(
+          event.focalY - size.height / 2,
+          focalY.value,
+          startY.value,
+          startScale.value,
+          next,
+        ),
+        size.height,
         next,
+        contentSize.height,
       )
       scale.value = next
     })
     .onFinalize(() => {
-      if (!pinching.value) {
-        return
-      }
       pinching.value = false
-      x.value = withSpring(boundedOffset(x.value, size.width, scale.value), {
-        damping: 24,
-        stiffness: 220,
-      })
-      y.value = withSpring(boundedOffset(y.value, size.height, scale.value), {
-        damping: 24,
-        stiffness: 220,
-      })
     })
   const pan = Gesture.Pan()
     .maxPointers(1)
     .minDistance(8)
-    .onStart(() => {
-      cancelAnimation(x)
-      cancelAnimation(y)
-    })
     .onChange((event) => {
       if (!pinching.value) {
         x.value = boundedOffset(
           x.value + event.changeX,
           size.width,
           scale.value,
+          contentSize.width,
         )
         y.value = boundedOffset(
           y.value + event.changeY,
           size.height,
           scale.value,
+          contentSize.height,
         )
       }
-    })
-    .onEnd((event) => {
-      const limitX = (size.width * (scale.value - 1)) / 2
-      const limitY = (size.height * (scale.value - 1)) / 2
-      x.value = withDecay({
-        velocity: event.velocityX,
-        clamp: [-limitX, limitX],
-      })
-      y.value = withDecay({
-        velocity: event.velocityY,
-        clamp: [-limitY, limitY],
-      })
     })
   const style = useAnimatedStyle(() => ({
     transform: [
@@ -156,7 +137,7 @@ export const JapanMap = ({ visited, onSelect }: JapanMapProps) => {
                     d={place.path}
                     fill={colors.land}
                     stroke={colors.boardBoundary}
-                    strokeWidth={1.3}
+                    strokeWidth={0.45}
                   />
                   {visited.includes(place.id) && (
                     <G>

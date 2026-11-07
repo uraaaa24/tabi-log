@@ -20,7 +20,7 @@ export function assertJapanMapImage(buffer: Buffer) {
   ).length
   const land = colors.filter(
     ([r = 0, g = 0, b = 0]) =>
-      r >= 194 && r <= 200 && g >= 163 && g <= 169 && b >= 119 && b <= 125,
+      r >= 221 && r <= 227 && g >= 200 && g <= 206 && b >= 163 && b <= 169,
   ).length
   assert.ok(
     background > image.width * image.height * 0.1,
