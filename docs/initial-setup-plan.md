@@ -2,7 +2,7 @@
 
 ## 状態と目的
 
-ユーザーの明示的な許可を受けてアプリ基盤を構築した。既存のLint・整形・型チェック・Vitest・独自Lint・Gitフック・CIを引き継ぎ、Expo Router、Development Build設定、NativeWind・Lucide共通部品、ブラウザStorybook、React Compilerを追加した。製品機能は今回の対象外。起動・固定版・検証結果は[開発手順](development.md)を参照。
+ユーザーの明示的な許可を受けてアプリ基盤を構築した。既存のLint・整形・型チェック・Vitest・独自Lint・Gitフック・CIを引き継ぎ、Expo Router、Development Build設定、NativeWind・Lucide共通部品、ブラウザ・ネイティブStorybook、React Compilerを追加した。製品機能は今回の対象外。起動・固定版・検証結果は[開発手順](development.md)を参照。
 
 目的は、ローカルとCodex cloudで合意済みの仕様に沿って作業し、同じコマンドで検証できる開発基盤を用意すること。製品機能の具体化が残る項目は[仕様書の案内](README.md)に残す。
 
@@ -39,7 +39,7 @@
 ## 実施状況と残件
 
 - 共通部品のMetro（Android/iOS）とStorybook（Vite）変換をテストで確認した。MetroのJSエクスポートとブラウザ表示も確認した。
-- 初期構築のコード・設定・CI追加は実装済み。Xcode/Android SDKによるネイティブバイナリのビルド、実機・エミュレーター表示、ネイティブStorybookの入口は未実施。
+- 初期構築のコード・設定・CI追加は実装済み。Xcode/Android SDKによるネイティブバイナリのビルド、実機・エミュレーター表示には別環境が必要。ネイティブStorybookの入口とバンドル分離検査、Android CIは追加済み。各項目の状態は[段階1一覧](stage-one-status.md)を参照。
 - GitHub Actionsのリモート実行と必須チェックの指定は、人によるレビュー時に確認する。以下は初期調査時の記録を含む。
 
 - 調査時のローカル環境はNode v26.0.0、pnpm 11.10.0。これは採用版の決定ではない。Expo・Storybook・Vitest等との互換性を確認し、プロジェクトで使用する版を固定する。

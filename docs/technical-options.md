@@ -44,7 +44,7 @@ React Native + Expo + TypeScriptの初期構築を実装済み。実装した範
 - UIはReact Nativeの基本部品を組み合わせて独自実装する。UIキットは導入しない。
 - 操作用アイコンにはLucideの`lucide-react-native`を採用する。[公式の導入方法](https://lucide.dev/guide/react-native/getting-started)に従い、採用済みの`react-native-svg`を利用する。必要なアイコンを個別にインポートし、大きさ・色・線幅を共通化する。具体的なバージョンはExpoが対応するSVGの版との整合を確認して定める。
 - スタイルにはNativeWindを採用する。通常の余白・色・文字・配置に使い、写真ごとの計算値はstyle、指操作中の表示更新はReanimatedで扱う。採用版とExpo・ブラウザStorybookの適合は別途確認する。
-- 独自UIの確認用にStorybookを開発環境へ組み込む。ブラウザ版を構築済み。ネイティブ版は別入口の実装・実機検証を残す。
+- 独自UIの確認用にStorybookを開発環境へ組み込む。ブラウザ版とネイティブ版の別入口を構築済み。公式の入口差し替え方式を採用し、実機検証の残件は段階1一覧に記載する。
 
 ## プロジェクト内の構成（方針決定）
 

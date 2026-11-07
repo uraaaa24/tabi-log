@@ -33,6 +33,7 @@ export default defineConfig({
     'docs/mockups/**',
     'pnpm-lock.yaml',
     'storybook-static/**',
+    '.rnstorybook/storybook.requires.ts',
     'dist/**',
   ],
 })
