@@ -1,0 +1,92 @@
+import { defineConfig } from 'oxlint'
+
+export default defineConfig({
+  options: { typeAware: true, reportUnusedDisableDirectives: 'error' },
+  jsPlugins: ['./scripts/lint/index.ts'],
+  categories: {
+    correctness: 'error',
+  },
+  ignorePatterns: ['docs/mockups/**', 'storybook-static/**', 'dist/**'],
+  plugins: ['typescript', 'react', 'unicorn', 'oxc', 'import'],
+  rules: {
+    'tabi-log/component-return': 'error',
+    'tabi-log/props-component-spacing': 'error',
+    'tabi-log/multiline-props': 'error',
+    'tabi-log/readonly-props': 'error',
+    'tabi-log/require-disable-rules': 'error',
+    'tabi-log/require-disable-reason': 'error',
+    'typescript/ban-ts-comment': [
+      'error',
+      {
+        'ts-ignore': true,
+        'ts-nocheck': true,
+        'ts-check': false,
+        'ts-expect-error': 'allow-with-description',
+        minimumDescriptionLength: 3,
+      },
+    ],
+    'react/jsx-boolean-value': ['error', 'never'],
+    'typescript/array-type': ['error', { default: 'array', readonly: 'array' }],
+    'tabi-log/no-let': 'error',
+    'no-var': 'error',
+    'prefer-const': 'error',
+    'no-param-reassign': ['error', { props: true }],
+    'no-nested-ternary': 'error',
+    'import/no-default-export': 'error',
+    'no-unused-vars': [
+      'error',
+      { vars: 'all', args: 'all', argsIgnorePattern: '^_' },
+    ],
+    'react/no-array-index-key': 'error',
+    'typescript/no-floating-promises': [
+      'error',
+      { ignoreVoid: false, ignoreIIFE: false },
+    ],
+    'func-style': 'off',
+    'typescript/explicit-function-return-type': 'off',
+    'typescript/explicit-module-boundary-types': 'off',
+    'import/newline-after-import': [
+      'error',
+      { count: 1, exactCount: true, considerComments: true },
+    ],
+    curly: ['error', 'all'],
+    eqeqeq: ['error', 'always'],
+    'typescript/no-non-null-assertion': 'error',
+    'typescript/no-explicit-any': 'error',
+    'typescript/consistent-type-imports': [
+      'error',
+      { prefer: 'type-imports', fixStyle: 'separate-type-imports' },
+    ],
+    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    'typescript/consistent-type-definitions': ['error', 'type'],
+    'react/function-component-definition': [
+      'error',
+      {
+        namedComponents: 'arrow-function',
+        unnamedComponents: 'arrow-function',
+      },
+    ],
+  },
+  overrides: [
+    {
+      files: [
+        'src/app/**/*.{ts,tsx}',
+        'src/**/*.stories.{ts,tsx}',
+        '.storybook/main.ts',
+        '.storybook/preview.ts',
+        'oxlint.config.ts',
+        'scripts/lint/index.ts',
+        'oxfmt.config.ts',
+        'vitest.config.ts',
+        'app.config.ts',
+      ],
+      rules: { 'import/no-default-export': 'off' },
+    },
+    {
+      files: ['src/**/*.{js,jsx,ts,tsx,mjs,cjs,mts,cts}'],
+      rules: {
+        'no-console': ['error', { allow: ['warn', 'error'] }],
+      },
+    },
+  ],
+})

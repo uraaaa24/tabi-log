@@ -8,7 +8,7 @@
 
 ## 構築するもの
 
-1. pnpm管理の単一Expo・TypeScriptプロジェクト。Expo SDK 57・NativeWind 4.2.7・Tailwind CSS 3を第一候補に、対応するReact・React Native・ネイティブ依存を確認して版を固定する。Node・pnpmの採用版とロックファイルも管理する。
+1. pnpm管理の単一Expo・TypeScriptプロジェクト。Expo SDK 57・NativeWind 4.2.7・Tailwind CSS 3を第一候補に、対応するReact・React Native・ネイティブ依存を確認して版を固定する。Node・pnpmの採用版とロックファイルも管理する。 React Compilerも導入・有効化し、採用するExpo・Reactに対応した版と設定を固定する。
 2. 共通の小さな表示部品を用意し、NativeWind・Lucideの表示をネイティブとReact Native Web版Storybookで確認する。ブラウザ用に別の製品UIを作らない。
 3. Vitestと共用サンプルデータの置き場所、Oxlint・Oxfmt・型チェックの設定。設定のためだけに振る舞いのないテストを増やさず、意味のある検証対象ができた時点でテストを追加する。
 4. `pnpm check`と個別の検証コマンド。依存方向の検査も含める。Storybookの静的ビルドは別コマンドとする。
@@ -32,6 +32,7 @@
 - 初回の依存導入と、ロックファイルに沿った再導入ができる。
 - Lint・整形確認・型チェック・用意済みテスト・依存方向の検査を共通コマンドで実行できる。テスト未作成ならその状態を明記し、アプリの動作検証済みとは扱わない。
 - 同じ共通部品にスタイルとアイコンが反映され、ブラウザStorybookの静的ビルドが通る。
+- React Compilerの依存と有効化設定だけでなく、共通部品が実際にコンパイルされることを確認する。NativeWind・Reanimated・Workletsとの併用、MetroとStorybook（Vite）の設定・変換結果をそれぞれ検証し、実機表示などの未実施項目は明記する。
 - ローカルのGitフックとCIが共通の検証処理を呼ぶ。CI未実行・必須チェック未適用なら、その状態を明記する。
 - ネイティブ表示・iPhone実機・Androidエミュレーター・Codex cloudについて、実施した検証と未実施の検証を区別する。
 
