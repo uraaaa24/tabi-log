@@ -63,7 +63,7 @@ pnpm storybook:native --android
 pnpm check:native-bundles
 ```
 
-公式の`withStorybook`が開発時の入口を`.rnstorybook/index.ts`に差し替える。NativeWindのglobal.cssをこちらでも読み込む。LiteUIを使い、on-device addonや選択状態の保存は追加しない。Storybook本体の推移依存にはbottom-sheet等が含まれるが、MetroでフルUIのJSを除外する。推移peerで取得されたGesture HandlerはSDK 57対応版2.32.0に直接固定する。ブラウザ版と同じ`PaperCard.stories.tsx`を使う。製品ルートにはStorybookを追加しない。起動モード変更時は前のMetroを停止し、必要なら`--clear`でキャッシュを更新する。
+モード切替時のバンドル検査は`--clear`でMetroキャッシュを更新する。公式の`withStorybook`が開発時の入口を`.rnstorybook/index.ts`に差し替える。NativeWindのglobal.cssをこちらでも読み込む。LiteUIを使い、on-device addonや選択状態の保存は追加しない。Storybook本体の推移依存にはbottom-sheet等が含まれるが、MetroでフルUIのJSを除外する。推移peerで取得されたGesture HandlerはSDK 57対応版2.32.0に直接固定する。ブラウザ版と同じ`PaperCard.stories.tsx`を使う。製品ルートにはStorybookを追加しない。起動モード変更時は前のMetroを停止し、必要なら`--clear`でキャッシュを更新する。
 
 `pnpm storybook:generate`で登録ファイルを生成する。`pnpm typecheck`も先に生成するため、fresh install後のCIでも型チェックできる。生成物はGit管理せず、手書きファイルのルールは維持する。
 
@@ -133,3 +133,7 @@ pnpm exec expo export --platform android --platform ios --source-maps --no-bytec
 Androidの表示モード設定に必要な`expo-system-ui`は57.0.4で固定し、SDK 57対応表に合わせた。
 
 ネイティブStorybookは`@storybook/react-native` / `@storybook/react-native-ui-lite` 10.7.1で固定。core Storybook 10.6.6はそのpeer範囲（^10.5.4）を満たす。[v10.7.1の公式導入手順](https://github.com/storybookjs/react-native/blob/v10.7.1/docs/docs/intro/getting-started/index.md)と入口差し替え実装を確認した。開発時のNativeWind JSX変換に必要な`@babel/plugin-transform-react-jsx` 7.29.7を直接依存として固定。`cross-env` 10.1.0でWindowsでも起動フラグを設定できる。
+
+## Phase2の起動と確認
+
+日本地図・記録・写真保存のネイティブ依存を追加したため、既存のDevelopment Buildの更新が必要。`pnpm ios`または`pnpm android`で再ビルドする。ブラウザStorybookは`Map/Japan`・`Records/ScrapPhoto`・`Records/PhotoGallery`を追加した。保存設計・画像変換の固定パッチ・未実施の受け入れ確認は[Phase2の記録](phase-two-status.md)を参照。

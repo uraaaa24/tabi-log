@@ -14,6 +14,7 @@ for (const mode of ['product', 'storybook'] satisfies BundleMode[]) {
     [
       path.resolve('node_modules/expo/bin/cli'),
       'export',
+      '--clear',
       '--platform',
       'android',
       '--platform',

@@ -6,6 +6,7 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
 import { paperCardExamples } from '../src/testing/paper-card.ts'
+import { assertJapanMapImage } from './build/japan-map-image.ts'
 import { assertPaperCardImage } from './build/paper-card-image.ts'
 
 const artifacts = path.resolve('dist/android-smoke')
@@ -122,15 +123,17 @@ for (const [mode, port] of [
           mode === 'storybook' ? storybookChrome : !storybookChrome
         if (
           correctEntry &&
-          xml.includes(paperCardExamples.default.title) &&
-          xml.includes(paperCardExamples.default.description)
+          (mode === 'product'
+            ? xml.includes('旅の記録 — 日本') && xml.includes('拡大')
+            : xml.includes(paperCardExamples.default.title) &&
+              xml.includes(paperCardExamples.default.description))
         ) {
           break
         }
       }
       assert.ok(
         Date.now() < visibleDeadline,
-        `${mode}: shared PaperCard text was not visible; inspect screenshots, XML and logs`,
+        `${mode}: expected product map or Storybook card was not visible; inspect screenshots, XML and logs`,
       )
       await delay(2000)
     }
@@ -138,9 +141,13 @@ for (const [mode, port] of [
       timeout: 15_000,
     })
     assert.equal(rendered.status, 0, `${mode}: screenshot capture failed`)
-    assertPaperCardImage(rendered.stdout, mode)
+    if (mode === 'product') {
+      assertJapanMapImage(rendered.stdout)
+    } else {
+      assertPaperCardImage(rendered.stdout, mode)
+    }
     console.log(
-      `${mode}: shared PaperCard, paper token and Lucide icon rendered on Android`,
+      `${mode}: expected screen and visual tokens rendered on Android`,
     )
   } catch (error) {
     const xml = await readFile(

@@ -32,11 +32,18 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "57.0.18",
+    "@react-native-community/datetimepicker": "9.1.0",
+    "@shopify/flash-list": "2.0.2",
     "expo": "57.0.32",
     "expo-constants": "57.0.23",
+    "expo-crypto": "57.0.4",
     "expo-dev-client": "57.0.21",
+    "expo-file-system": "57.0.7",
+    "expo-image-manipulator": "57.0.22",
+    "expo-image-picker": "57.0.21",
     "expo-linking": "57.0.13",
     "expo-router": "57.0.30",
+    "expo-sqlite": "57.0.4",
     "expo-system-ui": "57.0.4",
     "lucide-react-native": "1.70.0",
     "nativewind": "4.2.7",
@@ -92,6 +99,9 @@
     "onlyBuiltDependencies": [
       "esbuild",
       "lefthook"
-    ]
+    ],
+    "patchedDependencies": {
+      "expo-image-manipulator@57.0.22": "patches/expo-image-manipulator@57.0.22.patch"
+    }
   }
 }
