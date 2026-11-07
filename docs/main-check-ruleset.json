@@ -1,0 +1,41 @@
+{
+  "name": "Required development checks for main",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/main"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "required_status_checks": [
+          {
+            "context": "check",
+            "integration_id": 15368
+          },
+          {
+            "context": "storybook",
+            "integration_id": 15368
+          },
+          {
+            "context": "commitlint",
+            "integration_id": 15368
+          },
+          {
+            "context": "native-bundles",
+            "integration_id": 15368
+          },
+          {
+            "context": "android-smoke",
+            "integration_id": 15368
+          }
+        ]
+      }
+    }
+  ]
+}

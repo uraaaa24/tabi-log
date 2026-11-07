@@ -25,7 +25,10 @@
     "app.config.ts",
     "nativewind-env.d.ts",
     "scripts/build/**/*.ts",
-    "scripts/fixtures/**/*.ts"
+    "scripts/fixtures/**/*.ts",
+    ".rnstorybook/**/*.ts",
+    "scripts/check-native-bundles.ts",
+    "scripts/check-android-ui.ts"
   ],
   "extends": "expo/tsconfig.base"
 }

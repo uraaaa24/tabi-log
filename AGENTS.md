@@ -32,7 +32,7 @@ Nodeは `.node-version`、pnpmは `package.json` の `packageManager` に合わ�
 - `pnpm commitlint --edit <message-file>`：コミットメッセージを検査。
 - `pnpm hooks:install`：Lefthookを有効化。フックは検査のみとし、自動修正・自動ステージを行わない。
 
-Expo・Storybookの基盤は構築済み。`pnpm start`でDevelopment Build向けMetro、`pnpm ios`・`pnpm android`でローカルビルド、`pnpm storybook`でブラウザ表示、`pnpm build-storybook`で静的ビルドを行う。`pnpm check`にはMetro・StorybookのCompiler/NativeWind/Worklets変換テストを含む。詳細と未実施のネイティブ検証は[開発手順](docs/development.md)を参照する。既存のLint・整形・テスト設定を維持する。
+Expo・Storybookの基盤は構築済み。`pnpm start`でDevelopment Build向けMetro、`pnpm ios`・`pnpm android`でローカルビルド、`pnpm storybook`でブラウザ表示、`pnpm storybook:native`でネイティブの別入口、`pnpm build-storybook`で静的ビルドを行う。`pnpm check`にはMetro・StorybookのCompiler/NativeWind/Worklets変換テストを含む。詳細と未実施のネイティブ検証は[開発手順](docs/development.md)を参照する。`pnpm check:native-bundles`で製品へのStorybook混入を検査する。cloud準備は`bash scripts/cloud/prepare.sh`。段階1全体の実施状況は[一覧](docs/stage-one-status.md)を参照する。既存のLint・整形・テスト設定を維持する。
 
 ## コードと例外
 

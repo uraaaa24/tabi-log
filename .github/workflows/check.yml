@@ -26,6 +26,20 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build-storybook
+  native-bundles:
+    runs-on: ubuntu-latest
+    env:
+      EXPO_NO_TELEMETRY: 1
+      STORYBOOK_DISABLE_TELEMETRY: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:native-bundles
   commitlint:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
