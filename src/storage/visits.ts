@@ -13,6 +13,39 @@ type VisitRow = Readonly<{
   created_at: string
   updated_at: string
 }>
+export async function readVisitedPlaceIds(
+  db: SQLiteDatabase,
+): Promise<string[]> {
+  const rows = await db.getAllAsync<{ place_id: string }>(
+    'SELECT place_id FROM place_states WHERE visited=1',
+  )
+  return rows.map((row) => row.place_id)
+}
+export async function readLatestVisitId(
+  db: SQLiteDatabase,
+  placeId: string,
+): Promise<string | null> {
+  const row = await db.getFirstAsync<{ id: string }>(
+    'SELECT id FROM visits WHERE place_id=? ORDER BY start_date DESC, created_at DESC, id DESC LIMIT 1',
+    placeId,
+  )
+  return row?.id ?? null
+}
+type VisitDate = Readonly<{
+  id: string
+  startDate: string
+  endDate: string
+  photoCount: number
+}>
+export async function readVisitDates(
+  db: SQLiteDatabase,
+  placeId: string,
+): Promise<VisitDate[]> {
+  return db.getAllAsync<VisitDate>(
+    'SELECT v.id, v.start_date AS startDate, v.end_date AS endDate, (SELECT count(*) FROM photos WHERE visit_id=v.id) AS photoCount FROM visits v WHERE v.place_id=? ORDER BY v.start_date DESC, v.created_at DESC, v.id DESC',
+    placeId,
+  )
+}
 export async function readVisit(
   db: SQLiteDatabase,
   id: string,
@@ -62,6 +95,13 @@ export async function saveVisit(
 ): Promise<void> {
   validateVisit(visit)
   await db.withExclusiveTransactionAsync(async (tx) => {
+    const place = await tx.getFirstAsync<{ id: string }>(
+      'SELECT id FROM places WHERE id=?',
+      visit.placeId,
+    )
+    if (!place) {
+      throw new Error('記録の場所が見つかりません。')
+    }
     const existing = await tx.getFirstAsync<{ place_id: string }>(
       'SELECT place_id FROM visits WHERE id = ?',
       visit.id,
@@ -125,7 +165,24 @@ export async function setVisited(
   visited: boolean,
 ): Promise<void> {
   await db.withExclusiveTransactionAsync(async (tx) => {
+    const place = await tx.getFirstAsync<{ id: string }>(
+      'SELECT id FROM places WHERE id=?',
+      placeId,
+    )
+    if (!place) {
+      throw new Error('記録の場所が見つかりません。')
+    }
+
     if (!visited) {
+      // Exclusive transactions use a separate connection; do not rely on its foreign_keys setting.
+      await tx.runAsync(
+        'DELETE FROM photos WHERE visit_id IN (SELECT id FROM visits WHERE place_id=?)',
+        placeId,
+      )
+      await tx.runAsync(
+        'DELETE FROM visit_transports WHERE visit_id IN (SELECT id FROM visits WHERE place_id=?)',
+        placeId,
+      )
       await tx.runAsync('DELETE FROM visits WHERE place_id = ?', placeId)
     }
     await tx.runAsync(

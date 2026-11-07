@@ -8,6 +8,9 @@ import {
   deleteVisit,
   readHistory,
   readVisit,
+  readLatestVisitId,
+  readVisitedPlaceIds,
+  readVisitDates,
   saveVisit,
   setVisited,
 } from './visits'
@@ -153,5 +156,62 @@ describe('端末内の記録と関連データ', () => {
       saveVisit(db, { ...example, id: 'new', placeId: 'unknown', photos: [] }),
     ).rejects.toThrow()
     expect(await readVisit(db, 'new')).toBeNull()
+  })
+  it('ピンだけの県は直接入力へ、記録がある県は最新の日付の記録へ進める', async () => {
+    const { db } = current()
+    await setVisited(db, 'JP-20', true)
+    expect(await readLatestVisitId(db, 'JP-20')).toBeNull()
+    await saveVisit(db, example)
+    await saveVisit(db, {
+      ...example,
+      id: 'newer',
+      startDate: '2026-01-01',
+      endDate: '2026-01-01',
+      photos: [],
+    })
+    expect(await readLatestVisitId(db, 'JP-13')).toBe('newer')
+    expect(await readVisitedPlaceIds(db)).toEqual(
+      expect.arrayContaining(['JP-13', 'JP-20']),
+    )
+    expect(
+      (await readVisitDates(db, 'JP-13')).map((visit) => visit.id),
+    ).toEqual(['newer', 'visit-1'])
+  })
+  it('排他接続で外部キーが無効でも、その県の写真・交通手段を残さない', async () => {
+    const { db, sql } = current()
+    await saveVisit(db, example)
+    await saveVisit(db, {
+      ...example,
+      id: 'other',
+      placeId: 'JP-20',
+      photos: [],
+    })
+    sql.exec('PRAGMA foreign_keys=OFF')
+    await setVisited(db, 'JP-13', false)
+    expect(
+      sql.prepare('SELECT count(*) AS count FROM photos').get()?.count,
+    ).toBe(0)
+    expect(
+      sql
+        .prepare(
+          'SELECT count(*) AS count FROM visit_transports WHERE visit_id=?',
+        )
+        .get(example.id)?.count,
+    ).toBe(0)
+    expect(await readVisit(db, 'other')).not.toBeNull()
+    expect(await readVisitedPlaceIds(db)).toEqual(['JP-20'])
+  })
+  it('未訪問化の確定に失敗したら写真・交通手段とピンも元に戻す', async () => {
+    const { db, sql } = current()
+    await saveVisit(db, example)
+    sql.exec(
+      "CREATE TRIGGER reject_unvisited BEFORE INSERT ON place_states WHEN NEW.visited=0 BEGIN SELECT RAISE(ABORT, 'write failure'); END",
+    )
+    await expect(setVisited(db, 'JP-13', false)).rejects.toThrow(
+      'write failure',
+    )
+    expect(await readVisit(db, example.id)).toEqual(example)
+    expect(await readVisitedPlaceIds(db)).toEqual(['JP-13'])
+    expect((await readVisitDates(db, 'JP-13'))[0]?.photoCount).toBe(1)
   })
 })

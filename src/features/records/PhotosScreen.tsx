@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react'
 import { FlatList, Modal, Text, View, useWindowDimensions } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
-import { Button } from '../../components/TravelUI'
+import { Button, colors, Header } from '../../components/TravelUI'
 import { photoUri } from '../../storage/photos'
 import { useStore } from '../../storage/StoreProvider'
 import { readVisit } from '../../storage/visits'
@@ -27,14 +27,14 @@ export const PhotosScreen = ({ visitId, photoId }: PhotosScreenProps) => {
   } = useRead(useCallback(() => readVisit(db, visitId), [db, visitId]))
   const index = visit?.photos.findIndex((photo) => photo.id === selected) ?? -1
   return (
-    <View style={{ flex: 1, backgroundColor: '#f2e6cf' }}>
-      <Button
-        label="アルバムへ戻る"
-        onPress={() => {
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <Header
+        title="旅の写真"
+        onBack={() => {
           router.back()
         }}
       />
-      {error && (
+      {Boolean(error) && (
         <>
           <Text>{error}</Text>
           <Button

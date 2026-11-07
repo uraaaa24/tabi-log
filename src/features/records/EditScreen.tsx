@@ -5,16 +5,15 @@ import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
-  Switch,
   Text,
-  TextInput,
   View,
 } from 'react-native'
 
-import { Button, Paper, textStyle, titleStyle } from '../../components/TravelUI'
+import { Button, colors, Header, Paper } from '../../components/TravelUI'
 import {
   collectPhotos,
   discardDraftPhotos,
@@ -24,11 +23,17 @@ import {
   preparePhotos,
 } from '../../storage/photos'
 import { useStore } from '../../storage/StoreProvider'
-import { deleteVisit, readVisit, saveVisit } from '../../storage/visits'
+import {
+  deleteVisit,
+  readVisit,
+  readVisitedPlaceIds,
+  saveVisit,
+  setVisited,
+} from '../../storage/visits'
 import prefectures from '../map/domain/prefectures.json'
-import { DateField } from './DateField'
-import { transports, validateVisit } from './domain/record'
+import { validateVisit } from './domain/record'
 import type { Visit } from './domain/record'
+import { RecordFields } from './RecordFields'
 
 type EditScreenProps = Readonly<{
   placeId: string
@@ -40,11 +45,12 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
   const navigation = useNavigation()
   const [initial, setInitial] = useState<Visit | null>(null)
   const [draft, setDraft] = useState<Visit | null>(null)
+  const [isPinned, setIsPinned] = useState(false)
   const [multipleDays, setMultipleDays] = useState(false)
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
   const [allowLeave, setAllowLeave] = useState(false)
-  const [destination, setDestination] = useState<'album' | 'place' | null>(null)
+  const [destination, setDestination] = useState<'album' | 'map' | null>(null)
   const dirty =
     JSON.stringify(initial) !== JSON.stringify(draft) ||
     (initial !== null &&
@@ -68,6 +74,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
   useEffect(() => {
     const controller = new AbortController()
     const load = async () => {
+      const pinned = (await readVisitedPlaceIds(db)).includes(placeId)
       const timestamp = new Date().toISOString()
       const visit = visitId
         ? await readVisit(db, visitId)
@@ -87,6 +94,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
         throw new Error('記録が見つかりません。')
       }
       if (!controller.signal.aborted) {
+        setIsPinned(pinned)
         setInitial(visit)
         setDraft(visit)
         setMultipleDays(visit.endDate !== visit.startDate)
@@ -113,7 +121,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
         params: { visitId: draft.id },
       })
     } else {
-      router.dismissTo({ pathname: '/place/[placeId]', params: { placeId } })
+      router.dismissTo('/')
     }
   }, [allowLeave, destination, draft, placeId])
   const addPhotos = async () => {
@@ -195,10 +203,25 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
     try {
       await deleteVisit(db, draft.id)
       await collectPhotos(db).catch(() => undefined)
-      setDestination('place')
+      setDestination('map')
       setAllowLeave(true)
     } catch {
       setError('削除できませんでした。もう一度お試しください。')
+    } finally {
+      setBusy('')
+    }
+  }
+  const savePin = async () => {
+    if (busy || dirty || visitId) {
+      return
+    }
+    setBusy(isPinned ? 'ピンを外しています…' : 'ピンを残しています…')
+    try {
+      await setVisited(db, placeId, !isPinned)
+      setDestination('map')
+      setAllowLeave(true)
+    } catch {
+      setError('ピンを変更できませんでした。もう一度お試しください。')
     } finally {
       setBusy('')
     }
@@ -217,179 +240,95 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
     )
   }
   return (
-    <View style={{ flex: 1, backgroundColor: '#f2e6cf' }}>
-      <ScrollView
-        contentContainerStyle={{ padding: 18 }}
-        keyboardShouldPersistTaps="handled"
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <Header
+        title={
+          prefectures.find((place) => place.id === placeId)?.name ?? '旅の記録'
+        }
+        onBack={() => {
+          router.back()
+        }}
+      />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Button
-          label="戻る"
-          disabled={Boolean(busy)}
-          onPress={() => {
-            router.back()
-          }}
-        />
-        <Text style={titleStyle}>
-          {prefectures.find((place) => place.id === placeId)?.name}の
-          {visitId ? '訪問を編集' : '訪問を追加'}
-        </Text>
-        {error && (
-          <Text
-            accessibilityRole="alert"
-            style={{ color: '#9d3028', paddingVertical: 12 }}
-          >
-            {error}
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={{ color: colors.muted, fontSize: 14, marginBottom: 8 }}>
+            {visitId ? '旅の思い出を編集' : '新しい旅を記録'}
           </Text>
-        )}
-        <Paper>
-          <DateField
-            label="訪問日"
-            value={draft.startDate}
-            onChange={(value) => {
-              setDraft({ ...draft, startDate: value })
-            }}
-          />
-          <Text style={textStyle}>複数日の旅</Text>
-          <Switch
-            accessibilityLabel="複数日の旅"
-            value={multipleDays}
-            onValueChange={setMultipleDays}
-          />
-          {multipleDays && (
-            <DateField
-              label="終了日"
-              value={draft.endDate}
-              onChange={(value) => {
-                setDraft({ ...draft, endDate: value })
-              }}
-            />
-          )}
-        </Paper>
-        <Paper>
-          <Text style={textStyle}>日記・メモ</Text>
-          <TextInput
-            accessibilityLabel="日記・メモ"
-            multiline
-            value={draft.diary}
-            onChangeText={(value) => {
-              setDraft({ ...draft, diary: value })
-            }}
-            placeholder="旅の思い出を書き留める"
-            style={{ ...textStyle, minHeight: 140, textAlignVertical: 'top' }}
-          />
-        </Paper>
-        <Paper>
-          <Text style={textStyle}>ここへ来た交通手段（複数選択）</Text>
-          {transports.map((code) => (
-            <View
-              key={code}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
+          {Boolean(error) && (
+            <Text
+              accessibilityRole="alert"
+              style={{ color: colors.danger, paddingVertical: 12 }}
             >
-              <Text style={textStyle}>{code}</Text>
-              <Switch
-                accessibilityLabel={code}
-                value={draft.transports.includes(code)}
-                onValueChange={(checked) => {
-                  setDraft({
-                    ...draft,
-                    transports: checked
-                      ? [...draft.transports, code]
-                      : draft.transports.filter((item) => item !== code),
-                  })
-                }}
-              />
-            </View>
-          ))}
-          {draft.transports.includes('その他') && (
-            <TextInput
-              accessibilityLabel="その他の交通手段"
-              value={draft.otherTransport}
-              onChangeText={(value) => {
-                setDraft({ ...draft, otherTransport: value })
-              }}
-              style={textStyle}
-              placeholder="交通手段を入力"
-            />
+              {error}
+            </Text>
           )}
-        </Paper>
-        <Paper>
-          <Button
-            label="写真を追加"
-            onPress={() => {
+          <RecordFields
+            draft={draft}
+            multipleDays={multipleDays}
+            onChange={setDraft}
+            onMultipleDaysChange={setMultipleDays}
+            onAddPhotos={() => {
               addPhotos().catch(() => undefined)
             }}
+            uriFor={draftPhotoUri}
           />
-          {draft.photos.map((photo) => (
-            <View key={photo.id}>
-              <Image
-                source={{ uri: draftPhotoUri(photo) }}
-                style={{
-                  width: '100%',
-                  aspectRatio: photo.width / photo.height,
-                }}
-                resizeMode="contain"
-              />
-              <Button
-                label="この写真を外す"
-                onPress={() => {
-                  Alert.alert(
-                    '写真を外しますか？',
-                    '保存するまで削除は確定しません。',
-                    [
-                      { text: 'キャンセル', style: 'cancel' },
-                      {
-                        text: '外す',
-                        style: 'destructive',
-                        onPress: () => {
-                          setDraft({
-                            ...draft,
-                            photos: draft.photos.filter(
-                              (item) => item.id !== photo.id,
-                            ),
-                          })
-                        },
+          {!visitId && (
+            <Button
+              secondary
+              label={isPinned ? 'ピンを外す' : '日付なしで、ピンだけ残す'}
+              disabled={dirty || Boolean(busy)}
+              onPress={() => {
+                savePin().catch(() => undefined)
+              }}
+            />
+          )}
+          {Boolean(visitId) && (
+            <Button
+              label="この旅の記録を削除"
+              danger
+              onPress={() => {
+                Alert.alert(
+                  '訪問記録を削除しますか？',
+                  `写真${draft.photos.length}枚・日記・交通手段も削除されます。場所のピンは残ります。`,
+                  [
+                    { text: 'キャンセル', style: 'cancel' },
+                    {
+                      text: '削除',
+                      style: 'destructive',
+                      onPress: () => {
+                        remove().catch(() => undefined)
                       },
-                    ],
-                  )
-                }}
-              />
-            </View>
-          ))}
-        </Paper>
-        <Button
-          label="保存"
-          disabled={Boolean(busy)}
-          onPress={() => {
-            save().catch(() => undefined)
-          }}
-        />
-        {visitId && (
-          <Button
-            label="この訪問記録を削除"
-            danger
-            onPress={() => {
-              Alert.alert(
-                '訪問記録を削除しますか？',
-                `写真${draft.photos.length}枚・日記・交通手段も削除されます。場所のピンは残ります。`,
-                [
-                  { text: 'キャンセル', style: 'cancel' },
-                  {
-                    text: '削除',
-                    style: 'destructive',
-                    onPress: () => {
-                      remove().catch(() => undefined)
                     },
-                  },
-                ],
-              )
+                  ],
+                )
+              }}
+            />
+          )}
+        </ScrollView>
+        <View
+          style={{
+            paddingHorizontal: 24,
+            paddingVertical: 12,
+            borderTopWidth: 1,
+            borderTopColor: colors.line,
+            backgroundColor: colors.surface,
+          }}
+        >
+          <Button
+            label="旅の記録を保存"
+            disabled={Boolean(busy)}
+            onPress={() => {
+              save().catch(() => undefined)
             }}
           />
-        )}
-      </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
       <Modal
         visible={Boolean(busy)}
         transparent
@@ -401,12 +340,12 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#30281bd9',
+            backgroundColor: '#2B312DDD',
             gap: 20,
           }}
         >
           <ActivityIndicator color="#fff4dc" />
-          <Text style={{ color: '#fff4dc', fontSize: 18 }}>{busy}</Text>
+          <Text style={{ color: colors.surface, fontSize: 18 }}>{busy}</Text>
         </View>
       </Modal>
     </View>

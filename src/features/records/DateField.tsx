@@ -2,7 +2,7 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { useState } from 'react'
 import { Platform, Text, View } from 'react-native'
 
-import { Button } from '../../components/TravelUI'
+import { Button, colors } from '../../components/TravelUI'
 import { localDate } from './domain/record'
 
 type DateFieldProps = Readonly<{
@@ -17,8 +17,12 @@ export const DateField = ({ label, value, onChange }: DateFieldProps) => {
   const [open, setOpen] = useState(false)
   return (
     <View>
+      <Text style={{ color: colors.muted, fontSize: 14, marginBottom: 4 }}>
+        {label}
+      </Text>
       <Button
-        label={`${label}：${value || '未選択'}`}
+        secondary
+        label={value || '日付を選択'}
         onPress={() => {
           setSelection(value ? new Date(`${value}T12:00:00`) : new Date())
           setOpen(true)
@@ -29,6 +33,7 @@ export const DateField = ({ label, value, onChange }: DateFieldProps) => {
           <DateTimePicker
             value={selection}
             mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             maximumDate={today}
             onChange={(event, date) => {
               if (Platform.OS === 'android') {
@@ -53,7 +58,6 @@ export const DateField = ({ label, value, onChange }: DateFieldProps) => {
           )}
         </>
       )}
-      <Text>{label}は現地の暦日のまま保存します。</Text>
     </View>
   )
 }

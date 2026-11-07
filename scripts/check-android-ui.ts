@@ -124,7 +124,7 @@ for (const [mode, port] of [
         if (
           correctEntry &&
           (mode === 'product'
-            ? xml.includes('旅の記録 — 日本') && xml.includes('拡大')
+            ? xml.includes('旅の記録') && xml.includes('設定')
             : xml.includes(paperCardExamples.default.title) &&
               xml.includes(paperCardExamples.default.description))
         ) {

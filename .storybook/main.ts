@@ -1,5 +1,6 @@
 import type { StorybookConfig } from '@storybook/react-native-web-vite'
 import { createRequire } from 'node:module'
+import { fileURLToPath, URL } from 'node:url'
 import { mergeConfig } from 'vite'
 
 const config = {
@@ -9,6 +10,9 @@ const config = {
     mergeConfig(viteConfig, {
       resolve: {
         alias: {
+          '@react-native-community/datetimepicker': fileURLToPath(
+            new URL('./DateTimePicker.tsx', import.meta.url),
+          ),
           '@react-native/assets-registry/registry': createRequire(
             import.meta.url,
           ).resolve('react-native-web/dist/modules/AssetRegistry/index.js'),
