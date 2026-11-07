@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { checkBundleSources } from './bundle-sources'
 
-const product = ['src/app/index.tsx', 'src/components/PaperCard.tsx']
+const product = ['src/app/index.tsx', 'src/components/TravelUI.tsx']
 const storybook = [
   '.rnstorybook/index.ts',
   'src/components/PaperCard.tsx',

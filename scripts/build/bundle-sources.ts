@@ -8,8 +8,12 @@ export function checkBundleSources(
   const failures: string[] = []
   const contains = (suffix: string) =>
     paths.some((source) => source.endsWith(suffix))
-  if (!contains('src/components/PaperCard.tsx')) {
-    failures.push('Shared PaperCard is missing')
+  const sharedUi =
+    mode === 'product'
+      ? 'src/components/TravelUI.tsx'
+      : 'src/components/PaperCard.tsx'
+  if (!contains(sharedUi)) {
+    failures.push(`Shared UI is missing: ${sharedUi}`)
   }
   if (mode === 'product') {
     if (!contains('src/app/index.tsx')) {

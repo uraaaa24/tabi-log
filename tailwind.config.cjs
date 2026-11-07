@@ -1,4 +1,6 @@
 module.exports = {
+  // NativeWindのCSS遅延読み込み時の色設定更新に対応する。
+  darkMode: 'class',
   content: ['./src/**/*.{ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
