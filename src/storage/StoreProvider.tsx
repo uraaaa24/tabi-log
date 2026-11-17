@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { ActivityIndicator, Text, View } from 'react-native'
 
 import { Button } from '../components/TravelUI'
-import { openStore } from './database'
+import { NewerStoreError, openStore } from './database'
 import { collectPhotos } from './photos'
 
 const StoreContext = createContext<SQLiteDatabase | null>(null)
@@ -36,10 +36,13 @@ export const StoreProvider = ({ children }: StoreProviderProps) => {
           setDb(store)
         }
       })
-      .catch(() => {
+      .catch((reason: unknown) => {
+        console.error('記録の保存先を開けませんでした。', reason)
         if (!controller.signal.aborted) {
           setError(
-            '記録を開けませんでした。端末の空き容量を確認して再試行してください。',
+            reason instanceof NewerStoreError
+              ? reason.message
+              : '記録を開けませんでした。端末の空き容量を確認して再試行してください。',
           )
         }
       })
