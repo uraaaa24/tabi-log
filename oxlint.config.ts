@@ -87,6 +87,7 @@ export default defineConfig({
         'scripts/lint/index.ts',
         'oxfmt.config.ts',
         'vitest.config.ts',
+        'playwright.config.ts',
         'app.config.ts',
       ],
       rules: { 'import/no-default-export': 'off' },

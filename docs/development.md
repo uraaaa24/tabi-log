@@ -19,7 +19,7 @@ pnpm check
 pnpm build-storybook
 ```
 
-`pnpm check`はLint・整形・型チェック・Vitest・依存方向検査を順に実行する。`pnpm check:transforms`で変換テストのみを実行できる。フックは検査のみ。コミットは`type(scope): 絵文字 要約`形式に従う。
+`pnpm check`はLint・整形・型チェック・Vitest・依存方向検査を順に実行する。`pnpm check:transforms`で変換テストのみを実行できる。画面操作のE2Eは`pnpm test:e2e`（E2E用Webビルド＋Playwright、Chromiumが必要）で実行する。詳細は[ブラウザE2Eテスト](e2e-testing.md)。フックは検査のみ。コミットは`type(scope): 絵文字 要約`形式に従う。
 
 ## アプリの起動とローカルDevelopment Build
 

@@ -18,6 +18,7 @@ MVPは、木製の地図に訪問済みのピンを留め、県・国ごとの�
 | [端末内データの設計案](data-design.md)      | DBの基本構造、保存・削除、写真配置の設計       |
 | [技術構成の検討](technical-options.md)      | 採用技術、比較、バージョン候補、開発ハーネス   |
 | [開発計画](development-plan.md)             | 合意した開発の順番                             |
+| [ブラウザE2Eテスト](e2e-testing.md)         | Playwrightで検証する範囲・差し替え・限界       |
 | [初期構築の作業計画](initial-setup-plan.md) | 開発基盤の作業範囲と実装状況                   |
 | [HTMLモックの説明](mockups/README.md)       | モックで確認できる内容と未実装の動作           |
 

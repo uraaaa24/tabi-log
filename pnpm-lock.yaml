@@ -113,6 +113,9 @@ importers:
       '@commitlint/types':
         specifier: 21.2.3
         version: 21.2.3
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
       '@react-native/metro-config':
         specifier: 0.88.1
         version: 0.88.1(@babel/core@7.29.13)
@@ -2011,6 +2014,11 @@ packages:
 
   '@placemarkio/tokml@0.3.9':
     resolution: {integrity: sha512-LjD/rzPWF/0gY2tCoS4IPLQZ3/DqxzCmI3/V+dmXdWuZmyi3UIhHgxVfJ//bopxSjWHuGwY/qu4iyuNM+xluug==}
+
+  '@playwright/test@1.63.0':
+    resolution: {integrity: sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   '@radix-ui/primitive@1.2.0':
     resolution: {integrity: sha512-KABY+VMIRPJL+Vyzv/335FEhXXD/xDv8BMb1kl48/aXJZMH0LtHCTx5ga5RnxaEP3nZHtmTLf1P9vanmFX46bw==}
@@ -4867,6 +4875,16 @@ packages:
     resolution: {integrity: sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA==}
     engines: {node: '>= 6'}
 
+  playwright-core@1.63.0:
+    resolution: {integrity: sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.63.0:
+    resolution: {integrity: sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   plist@3.1.1:
     resolution: {integrity: sha512-ZIfcLJC+7E7FBFnDxm9MPmt7D+DidyQ26lewieO75AdhA2ayMtsJSES0iWzqJQbcVRSrTufQoy0DR94xHue0oA==}
     engines: {node: '>=10.4.0'}
@@ -7718,6 +7736,10 @@ snapshots:
   '@petamoriken/float16@3.9.3': {}
 
   '@placemarkio/tokml@0.3.9': {}
+
+  '@playwright/test@1.63.0':
+    dependencies:
+      playwright: 1.63.0
 
   '@radix-ui/primitive@1.2.0': {}
 
@@ -10931,6 +10953,12 @@ snapshots:
       node-modules-regexp: 1.0.0
 
   pirates@4.0.7: {}
+
+  playwright-core@1.63.0: {}
+
+  playwright@1.63.0:
+    dependencies:
+      playwright-core: 1.63.0
 
   plist@3.1.1:
     dependencies:

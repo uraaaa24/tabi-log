@@ -29,7 +29,9 @@
     "storybook:generate": "sb-rn-get-stories --config-path .rnstorybook",
     "check:native-bundles": "pnpm storybook:generate && node scripts/check-native-bundles.ts",
     "check:android-ui": "node scripts/check-android-ui.ts",
-    "map:generate": "node scripts/build/japan-map.ts"
+    "map:generate": "node scripts/build/japan-map.ts",
+    "build:e2e": "cross-env TABI_E2E=1 expo export --platform web --output-dir dist/e2e-web --clear",
+    "test:e2e": "pnpm build:e2e && playwright test"
   },
   "dependencies": {
     "@expo/dom-webview": "58.0.2",
@@ -67,6 +69,7 @@
     "@commitlint/cli": "21.2.4",
     "@commitlint/config-conventional": "21.2.4",
     "@commitlint/types": "21.2.3",
+    "@playwright/test": "1.63.0",
     "@react-native/metro-config": "0.88.1",
     "@storybook/react-native": "10.7.1",
     "@storybook/react-native-ui-lite": "10.7.1",
