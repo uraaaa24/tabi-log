@@ -10,6 +10,7 @@ import {
   readVisit,
   readLatestVisitId,
   readVisitedPlaceIds,
+  readPinPhotos,
   readVisitDates,
   saveVisit,
   setVisited,
@@ -213,5 +214,29 @@ describe('端末内の記録と関連データ', () => {
     expect(await readVisit(db, example.id)).toEqual(example)
     expect(await readVisitedPlaceIds(db)).toEqual(['JP-13'])
     expect((await readVisitDates(db, 'JP-13'))[0]?.photoCount).toBe(1)
+  })
+  it('年表の各旅に最初の写真を添え、地図のピンには最新の写真付きの旅を使う', async () => {
+    const { db } = current()
+    await saveVisit(db, example)
+    await saveVisit(db, {
+      ...example,
+      id: 'newer-without-photos',
+      startDate: '2025-08-01',
+      endDate: '2025-08-01',
+      photos: [],
+    })
+    await saveVisit(db, {
+      ...example,
+      id: 'pin-only-place',
+      placeId: 'JP-20',
+      photos: [],
+    })
+
+    expect(
+      (await readVisitDates(db, 'JP-13')).map((visit) => visit.thumbnail),
+    ).toEqual([null, 'photo-1-thumb.jpg'])
+    expect(await readPinPhotos(db)).toEqual([
+      { placeId: 'JP-13', thumbnail: 'photo-1-thumb.jpg' },
+    ])
   })
 })

@@ -1,6 +1,7 @@
 import { launchImageLibraryAsync } from 'expo-image-picker'
 import { router } from 'expo-router'
 import { usePreventRemove } from 'expo-router/react-navigation'
+import { Check, Trash, X } from 'lucide-react-native'
 import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
@@ -8,12 +9,16 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native'
 
-import { Button, colors, Header, Paper } from '../../components/TravelUI'
+import { Surface } from '../../components/Surface'
+import { Tape } from '../../components/Tape'
+import { Button, colors, fonts, Paper } from '../../components/TravelUI'
+import { WoodButton } from '../../components/WoodButton'
 import {
   collectPhotos,
   discardDraftPhotos,
@@ -32,6 +37,7 @@ import {
   setVisited,
 } from '../../storage/visits'
 import prefectures from '../map/domain/prefectures.json'
+import { PlaceSilhouette } from '../map/PlaceSilhouette'
 import { validateVisit } from './domain/record'
 import type { Visit } from './domain/record'
 import { RecordFields } from './RecordFields'
@@ -49,15 +55,11 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
   // A place with trips may only be unpinned from the visit sheet, where the
   // number of trips and photos to delete is confirmed first.
   const [hasTrips, setHasTrips] = useState(false)
-  const [multipleDays, setMultipleDays] = useState(false)
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
   const [allowLeave, setAllowLeave] = useState(false)
   const [destination, setDestination] = useState<'album' | 'map' | null>(null)
-  const dirty =
-    JSON.stringify(initial) !== JSON.stringify(draft) ||
-    (initial !== null &&
-      multipleDays !== (initial.endDate !== initial.startDate))
+  const dirty = JSON.stringify(initial) !== JSON.stringify(draft)
   usePreventRemove(!allowLeave && (dirty || Boolean(busy)), ({ repeat }) => {
     if (busy) {
       return
@@ -105,7 +107,6 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
         setHasTrips(trips)
         setInitial(visit)
         setDraft(visit)
-        setMultipleDays(visit.endDate !== visit.startDate)
       }
     }
     load().catch((reason: unknown) => {
@@ -184,7 +185,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
     try {
       const visit = {
         ...draft,
-        endDate: multipleDays ? draft.endDate : draft.startDate,
+        endDate: draft.endDate || draft.startDate,
         updatedAt: new Date().toISOString(),
       }
       validateVisit(visit)
@@ -234,6 +235,25 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
       setBusy('')
     }
   }
+  const confirmRemove = () => {
+    if (!draft) {
+      return
+    }
+    Alert.alert(
+      '訪問記録を削除しますか？',
+      `写真${draft.photos.length}枚・日記・交通手段も削除されます。場所のピンは残ります。`,
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '削除',
+          style: 'destructive',
+          onPress: () => {
+            remove().catch(() => undefined)
+          },
+        },
+      ],
+    )
+  }
   if (!draft) {
     return (
       <Paper>
@@ -247,16 +267,13 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
       </Paper>
     )
   }
+  const placeName =
+    prefectures.find((place) => place.id === placeId)?.name ?? '旅の記録'
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <Header
-        title={
-          prefectures.find((place) => place.id === placeId)?.name ?? '旅の記録'
-        }
-        onBack={() => {
-          router.back()
-        }}
-      />
+    <Surface
+      kind="paper"
+      style={{ flex: 1 }}
+    >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -265,76 +282,133 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={{ color: colors.muted, fontSize: 14, marginBottom: 8 }}>
-            {visitId ? '旅の思い出を編集' : '新しい旅を記録'}
-          </Text>
+          <View style={{ alignItems: 'center' }}>
+            <Tape
+              width={200}
+              height={40}
+              rotation={-1.5}
+              style={{ marginTop: -6 }}
+            />
+            <View
+              accessible
+              accessibilityRole="header"
+              accessibilityLabel={`${placeName}、${visitId ? '旅の思い出を編集' : '新しい旅を記録'}`}
+              style={{ paddingVertical: 12 }}
+            >
+              <PlaceSilhouette
+                placeId={placeId}
+                size={112}
+              />
+            </View>
+          </View>
           {Boolean(error) && (
             <Text
               accessibilityRole="alert"
-              style={{ color: colors.danger, paddingVertical: 12 }}
+              style={{
+                color: colors.danger,
+                fontFamily: fonts.regular,
+                paddingVertical: 8,
+              }}
             >
               {error}
             </Text>
           )}
           <RecordFields
             draft={draft}
-            multipleDays={multipleDays}
             onChange={setDraft}
-            onMultipleDaysChange={setMultipleDays}
             onAddPhotos={() => {
               addPhotos().catch(() => undefined)
             }}
             uriFor={draftPhotoUri}
           />
           {!visitId && !hasTrips && (
-            <Button
-              secondary
-              label={isPinned ? 'ピンを外す' : '日付なしで、ピンだけ残す'}
+            <Pressable
+              accessibilityRole="button"
               disabled={dirty || Boolean(busy)}
               onPress={() => {
                 savePin().catch(() => undefined)
               }}
-            />
-          )}
-          {Boolean(visitId) && (
-            <Button
-              label="この旅の記録を削除"
-              danger
-              onPress={() => {
-                Alert.alert(
-                  '訪問記録を削除しますか？',
-                  `写真${draft.photos.length}枚・日記・交通手段も削除されます。場所のピンは残ります。`,
-                  [
-                    { text: 'キャンセル', style: 'cancel' },
-                    {
-                      text: '削除',
-                      style: 'destructive',
-                      onPress: () => {
-                        remove().catch(() => undefined)
-                      },
-                    },
-                  ],
-                )
+              style={{
+                alignSelf: 'center',
+                padding: 12,
+                opacity: dirty || busy ? 0.4 : 1,
               }}
-            />
+            >
+              <Text
+                style={{
+                  color: colors.muted,
+                  fontFamily: fonts.regular,
+                  fontSize: 14,
+                  textDecorationLine: 'underline',
+                }}
+              >
+                {isPinned ? 'ピンを外す' : '日付なしで、ピンだけ残す'}
+              </Text>
+            </Pressable>
           )}
         </ScrollView>
         <View
           style={{
-            paddingHorizontal: 24,
-            paddingVertical: 12,
-            borderTopWidth: 1,
-            borderTopColor: colors.line,
-            backgroundColor: colors.surface,
+            paddingHorizontal: 32,
+            paddingTop: 12,
+            paddingBottom: 20,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          <Button
+          <WoodButton
             label="旅の記録を保存"
+            tone="red"
+            size={80}
             disabled={Boolean(busy)}
             onPress={() => {
               save().catch(() => undefined)
             }}
-          />
+          >
+            <Check
+              size={40}
+              color={colors.onPrimary}
+              strokeWidth={3}
+            />
+          </WoodButton>
+          {visitId ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="この旅の記録を削除"
+              hitSlop={12}
+              disabled={Boolean(busy)}
+              onPress={confirmRemove}
+              style={({ pressed }) => ({
+                padding: 8,
+                transform: [{ translateY: pressed ? 1 : 0 }],
+                opacity: pressed ? 0.7 : 1,
+              })}
+            >
+              <Trash
+                size={34}
+                color={colors.primary}
+                strokeWidth={2}
+              />
+            </Pressable>
+          ) : (
+            <View />
+          )}
+          <WoodButton
+            label="編集をやめて戻る"
+            tone="stone"
+            size={80}
+            disabled={Boolean(busy)}
+            onPress={() => {
+              router.back()
+            }}
+          >
+            <X
+              size={40}
+              color={colors.onPrimary}
+              strokeWidth={2.6}
+            />
+          </WoodButton>
         </View>
       </KeyboardAvoidingView>
       <Modal
@@ -348,14 +422,22 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#2B312DDD',
+            backgroundColor: '#2A1408CC',
             gap: 20,
           }}
         >
-          <ActivityIndicator color="#fff4dc" />
-          <Text style={{ color: colors.surface, fontSize: 18 }}>{busy}</Text>
+          <ActivityIndicator color={colors.onPrimary} />
+          <Text
+            style={{
+              color: colors.onPrimary,
+              fontFamily: fonts.regular,
+              fontSize: 18,
+            }}
+          >
+            {busy}
+          </Text>
         </View>
       </Modal>
-    </View>
+    </Surface>
   )
 }

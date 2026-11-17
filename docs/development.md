@@ -138,7 +138,14 @@ Androidの表示モード設定に必要な`expo-system-ui`は58.0.7で固定し
 
 ## Phase2の起動と確認
 
-日本地図・記録・写真保存のネイティブ依存を追加したため、既存のDevelopment Buildの更新が必要。`pnpm ios`または`pnpm android`で再ビルドする。ブラウザStorybookは`Map/Japan`・`Records/ScrapPhoto`・`Records/PhotoGallery`を追加した。保存設計・画像変換の固定パッチ・未実施の受け入れ確認は[Phase2の記録](phase-two-status.md)を参照。
+日本地図・記録・写真保存のネイティブ依存を追加したため、既存のDevelopment Buildの更新が必要。`pnpm ios`または`pnpm android`で再ビルドする。ブラウザStorybookは`Map/Japan`・`Records/PhotoGallery`などを追加した。保存設計・画像変換の固定パッチ・未実施の受け入れ確認は[Phase2の記録](phase-two-status.md)を参照。
+
+## 画面参考画像への刷新
+
+- フォントは`expo-font` 58.0.11と`@expo-google-fonts/shippori-mincho` 0.4.1（Medium・Boldの2書体、各約8.6MB）を固定した。`expo-font`は`expo`本体の依存でネイティブ部分が既存のDevelopment Buildに含まれるため、作り直しは不要。`FontGate`が書体の読み込みまで描画を待つ。
+- 背景・ボタンは単色とし、質感の画像は使わない。
+- ブラウザStorybookでは、`expo-font`・しっぽり明朝の各モジュールと、react-native-svgの`NativeSvgSoundModule`を`.storybook/`の代替に差し替える（`main.ts`）。代替は製品バンドルに含まれない。
+- 共通部品`WoodButton`・`Polaroid`・`PushPin`・`Tape`・`Surface`・`InkOutline`を`src/components/`に追加し、それぞれのstoryで確認する。
 
 ## SDK 58への更新
 

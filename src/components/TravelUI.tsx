@@ -3,21 +3,39 @@ import type { ReactNode } from 'react'
 import { Pressable, Text, View } from 'react-native'
 
 export const colors = {
-  background: '#F7F3EB',
-  surface: '#FFFCF6',
-  ink: '#362F28',
-  muted: '#6E6257',
-  line: '#E1D7C9',
-  primary: '#88583D',
-  onPrimary: '#FFFAF0',
-  soft: '#EFE7DA',
-  danger: '#9D3028',
-  board: '#694229',
-  boardText: '#FFF3DE',
-  boardMuted: '#E0CEB4',
-  boardBoundary: '#8A6E50',
-  land: '#E0CBA6',
-  pinNeedle: '#EEE5CD',
+  // Every screen sits on the same light board as the map.
+  background: '#E5D7BF',
+  surface: '#FBF7EF',
+  ink: '#3B2416',
+  muted: '#7A6352',
+  line: '#CDBB9F',
+  primary: '#6B3E22',
+  onPrimary: '#FFF8EC',
+  // Card laid on the board: fields, placeholders and quiet surfaces.
+  soft: '#F4ECDD',
+  danger: '#B83A1F',
+  accent: '#D9482B',
+  stone: '#8F877E',
+  // Light plain pin board behind the map; text on it uses the ink colours.
+  board: '#E5D7BF',
+  boardText: '#3B2416',
+  boardMuted: '#6B5240',
+  boardBoundary: '#4A2A15',
+  // The pen colour of every hand-drawn outline, matching the map borders.
+  outline: '#4A2A15',
+  land: '#C99A66',
+  landPressed: '#DDB27E',
+  // The shadow a cut-out piece casts on the board.
+  landShadow: '#5E3A1E59',
+  pinNeedle: '#B9B2A8',
+  photoFrame: '#FFFDF8',
+  tape: '#EFE6D2',
+} as const
+
+// Shippori Mincho is bundled with the app and loaded before the first screen.
+export const fonts = {
+  regular: 'ShipporiMincho_500Medium',
+  bold: 'ShipporiMincho_700Bold',
 } as const
 
 function pressOpacity(disabled: boolean, pressed: boolean) {
@@ -64,7 +82,12 @@ export const Button = ({
       })}
     >
       <Text
-        style={{ color, fontSize: 16, fontWeight: '600', textAlign: 'center' }}
+        style={{
+          color,
+          fontFamily: fonts.bold,
+          fontSize: 16,
+          textAlign: 'center',
+        }}
       >
         {label}
       </Text>
@@ -178,11 +201,12 @@ export const Paper = ({ children }: PaperProps) => {
 }
 export const textStyle = {
   color: colors.ink,
+  fontFamily: fonts.regular,
   fontSize: 16,
-  lineHeight: 26,
+  lineHeight: 28,
 } as const
 export const titleStyle = {
   color: colors.ink,
+  fontFamily: fonts.bold,
   fontSize: 24,
-  fontWeight: '700',
 } as const

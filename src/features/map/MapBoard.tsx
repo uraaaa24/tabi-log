@@ -1,11 +1,14 @@
 import { Settings } from 'lucide-react-native'
 import { ActivityIndicator, Text, View } from 'react-native'
 
-import { Button, colors, Header, IconButton } from '../../components/TravelUI'
+import { Surface } from '../../components/Surface'
+import { Button, colors, fonts } from '../../components/TravelUI'
+import { WoodButton } from '../../components/WoodButton'
 import { JapanMap } from './JapanMap'
 
 type MapBoardProps = Readonly<{
   visited: readonly string[] | null
+  photos?: Readonly<Record<string, string>>
   loading?: boolean
   error?: string
   onSelect: (id: string) => void
@@ -15,6 +18,7 @@ type MapBoardProps = Readonly<{
 
 export const MapBoard = ({
   visited,
+  photos,
   loading = false,
   error = '',
   onSelect,
@@ -22,48 +26,79 @@ export const MapBoard = ({
   onReload,
 }: MapBoardProps) => {
   return (
-    <View style={{ flex: 1, backgroundColor: colors.board }}>
-      <Header
-        title="旅の記録"
-        foreground={colors.boardText}
-        actions={
-          <IconButton
-            label="設定"
-            onPress={() => {
-              onSettings()
-            }}
-          >
-            <Settings
-              size={22}
-              color={colors.boardText}
-              strokeWidth={1.8}
-            />
-          </IconButton>
-        }
+    <Surface
+      kind="board"
+      // A shallow inner edge, as if the board sits slightly below its frame.
+      style={{
+        flex: 1,
+        boxShadow: 'inset 0 1px 0 #FFFFFF66, inset 0 0 14px #5E3A1E26',
+      }}
+    >
+      <JapanMap
+        visited={visited ?? []}
+        ready={visited !== null}
+        photos={photos}
+        onSelect={(id) => {
+          onSelect(id)
+        }}
       />
       <View
+        pointerEvents="box-none"
         style={{
-          paddingHorizontal: 24,
-          paddingBottom: 8,
+          position: 'absolute',
+          top: 12,
+          left: 20,
+          right: 16,
           flexDirection: 'row',
-          alignItems: 'baseline',
-          gap: 8,
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
         }}
       >
+        {/* Burned into the board rather than printed on a card. */}
         <Text
-          style={{ color: colors.boardText, fontSize: 32, fontWeight: '600' }}
+          accessibilityLabel={`訪れた場所 ${visited?.length ?? 0} / 47`}
+          style={{
+            color: colors.boardMuted,
+            fontFamily: fonts.bold,
+            fontSize: 15,
+            opacity: 0.85,
+            paddingTop: 10,
+            textShadowColor: '#00000066',
+            textShadowOffset: { width: 0, height: 1 },
+            textShadowRadius: 2,
+          }}
         >
           {visited?.length ?? '—'}
+          <Text style={{ fontSize: 12 }}> / 47</Text>
         </Text>
-        <Text style={{ color: colors.boardMuted, fontSize: 14 }}>
-          / 47　訪れた場所
-        </Text>
+        <WoodButton
+          label="設定"
+          size={44}
+          onPress={onSettings}
+        >
+          <Settings
+            size={20}
+            color={colors.boardText}
+            strokeWidth={2}
+          />
+        </WoodButton>
       </View>
       {Boolean(error) && (
-        <View style={{ paddingHorizontal: 24 }}>
+        <View
+          style={{
+            position: 'absolute',
+            left: 24,
+            right: 24,
+            bottom: 32,
+            padding: 16,
+            borderRadius: 12,
+            backgroundColor: '#2A1408E6',
+            gap: 8,
+          }}
+        >
           <Text
             accessibilityRole="alert"
-            style={{ color: '#FFD0BE' }}
+            style={{ color: '#FFD0BE', fontFamily: fonts.regular }}
           >
             {error}
           </Text>
@@ -76,28 +111,13 @@ export const MapBoard = ({
           )}
         </View>
       )}
-      {loading ? (
+      {loading && (
         <ActivityIndicator
           accessibilityLabel="地図を読み込み中"
           color={colors.boardText}
+          style={{ position: 'absolute', alignSelf: 'center', top: '50%' }}
         />
-      ) : null}
-      <JapanMap
-        visited={visited ?? []}
-        onSelect={(id) => {
-          onSelect(id)
-        }}
-      />
-      <Text
-        style={{
-          color: colors.boardMuted,
-          fontSize: 12,
-          textAlign: 'center',
-          paddingVertical: 16,
-        }}
-      >
-        ピンチで拡大・縮小　ドラッグで移動
-      </Text>
-    </View>
+      )}
+    </Surface>
   )
 }

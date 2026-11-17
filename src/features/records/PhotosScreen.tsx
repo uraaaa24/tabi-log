@@ -1,15 +1,17 @@
 import { router } from 'expo-router'
+import { ArrowLeft } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
-import { FlatList, Modal, Text, View, useWindowDimensions } from 'react-native'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { Text, useWindowDimensions, View } from 'react-native'
 
-import { Button, colors, Header } from '../../components/TravelUI'
+import { Surface } from '../../components/Surface'
+import { Button, colors, fonts } from '../../components/TravelUI'
+import { WoodButton } from '../../components/WoodButton'
 import { photoUri } from '../../storage/photos'
 import { useStore } from '../../storage/StoreProvider'
 import { readVisit } from '../../storage/visits'
 import { PhotoGallery } from './PhotoGallery'
+import { PhotoViewer } from './PhotoViewer'
 import { useRead } from './useRead'
-import { ZoomPhoto } from './ZoomPhoto'
 
 type PhotosScreenProps = Readonly<{
   visitId: string
@@ -25,74 +27,67 @@ export const PhotosScreen = ({ visitId, photoId }: PhotosScreenProps) => {
     error,
     reload,
   } = useRead(useCallback(() => readVisit(db, visitId), [db, visitId]))
-  const index = visit?.photos.findIndex((photo) => photo.id === selected) ?? -1
+  const photos = visit?.photos ?? []
+  const index = photos.findIndex((photo) => photo.id === selected)
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <Header
-        title="旅の写真"
-        onBack={() => {
-          router.back()
-        }}
-      />
-      {Boolean(error) && (
-        <>
-          <Text>{error}</Text>
-          <Button
-            label="再試行"
-            onPress={reload}
-          />
-        </>
-      )}
+    <Surface
+      kind="paper"
+      style={{ flex: 1 }}
+    >
       <PhotoGallery
-        photos={visit?.photos ?? []}
+        photos={photos}
+        width={width}
         uriFor={(photo) => photoUri(photo.thumbnail)}
         onSelect={(photo) => {
           setSelected(photo.id)
         }}
-      />
-      <Modal
-        visible={index >= 0}
-        onRequestClose={() => {
-          setSelected(null)
-        }}
-      >
-        <GestureHandlerRootView
-          style={{ flex: 1, backgroundColor: '#241f19', paddingVertical: 36 }}
-        >
-          <Button
-            label="写真一覧へ戻る"
-            onPress={() => {
-              setSelected(null)
-            }}
-          />
-          <Text style={{ color: 'white', textAlign: 'center' }}>
-            左右スワイプで切替・ピンチで拡大・2本指で移動
-          </Text>
-          {index >= 0 && (
-            <FlatList
-              key={selected}
-              horizontal
-              pagingEnabled
-              data={visit?.photos ?? []}
-              initialScrollIndex={index}
-              getItemLayout={(_data, itemIndex) => ({
-                length: width,
-                offset: width * itemIndex,
-                index: itemIndex,
-              })}
-              keyExtractor={(photo) => photo.id}
-              renderItem={({ item }) => (
-                <ZoomPhoto
-                  photo={item}
-                  uri={photoUri(item.path)}
-                  width={width}
-                  height={height - 150}
+        header={
+          <View style={{ height: 72, justifyContent: 'center' }}>
+            {Boolean(error) && (
+              <View style={{ marginLeft: 64 }}>
+                <Text
+                  accessibilityRole="alert"
+                  style={{ color: colors.danger, fontFamily: fonts.regular }}
+                >
+                  {error}
+                </Text>
+                <Button
+                  secondary
+                  label="再試行"
+                  onPress={reload}
                 />
-              )}
-            />
-          )}
-        </GestureHandlerRootView>
-      </Modal>
-    </View>
+              </View>
+            )}
+          </View>
+        }
+      />
+      <View style={{ position: 'absolute', top: 12, left: 16 }}>
+        <WoodButton
+          label="戻る"
+          size={48}
+          onPress={() => {
+            router.back()
+          }}
+        >
+          <ArrowLeft
+            size={24}
+            color={colors.ink}
+            strokeWidth={2.4}
+          />
+        </WoodButton>
+      </View>
+      {index >= 0 && (
+        <PhotoViewer
+          photos={photos}
+          index={index}
+          width={width}
+          height={height}
+          uriFor={(photo) => photoUri(photo.path)}
+          onClose={() => {
+            setSelected(null)
+          }}
+        />
+      )}
+    </Surface>
   )
 }

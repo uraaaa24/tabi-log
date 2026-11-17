@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite'
-import { View } from 'react-native'
 
+import { Surface } from '../../components/Surface'
 import { sampleImageUri, samplePhotos } from '../../testing/travel'
 import { PhotoGallery } from './PhotoGallery'
 
@@ -9,14 +9,18 @@ const meta = {
   component: PhotoGallery,
   args: {
     photos: samplePhotos,
+    width: 390,
     uriFor: () => sampleImageUri,
     onSelect: () => undefined,
   },
   decorators: [
     (Story) => (
-      <View style={{ width: 390, height: 700, backgroundColor: '#fcf5e5' }}>
+      <Surface
+        kind="paper"
+        style={{ width: 390, height: 780 }}
+      >
         <Story />
-      </View>
+      </Surface>
     ),
   ],
 } satisfies Meta<typeof PhotoGallery>

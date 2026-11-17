@@ -22,6 +22,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
     "app.config.ts",
     "nativewind-env.d.ts",
     "scripts/build/**/*.ts",

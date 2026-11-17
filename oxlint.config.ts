@@ -81,7 +81,7 @@ export default defineConfig({
         '.rnstorybook/main.ts',
         '.rnstorybook/preview.ts',
         '.storybook/main.ts',
-        '.storybook/preview.ts',
+        '.storybook/preview.tsx',
         'oxlint.config.ts',
         'commitlint.config.ts',
         'scripts/lint/index.ts',

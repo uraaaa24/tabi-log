@@ -62,10 +62,41 @@ export function validateVisit(visit: Visit, today = localDate()) {
     throw new Error('写真が重複しています。')
   }
 }
+const dateParts = (value: string) => {
+  const [year = 0, month = 0, day = 0] = value.split('-').map(Number)
+  return { year, month, day }
+}
+// ["2026年1月1日", "-3日"]: the end date repeats only the parts that differ,
+// so a trip across a month or year boundary stays unambiguous. The parts are
+// the only places a long label may wrap.
+export function dateLabelParts(
+  visit: Pick<Visit, 'startDate' | 'endDate'>,
+): [string, string] {
+  const start = dateParts(visit.startDate)
+  const end = dateParts(visit.endDate || visit.startDate)
+  const first = `${start.year}年${start.month}月${start.day}日`
+  if (visit.startDate === visit.endDate || !visit.endDate) {
+    return [first, '']
+  }
+  if (start.year !== end.year) {
+    return [first, `-${end.year}年${end.month}月${end.day}日`]
+  }
+  if (start.month !== end.month) {
+    return [first, `-${end.month}月${end.day}日`]
+  }
+  return [first, `-${end.day}日`]
+}
 export const dateLabel = (visit: Pick<Visit, 'startDate' | 'endDate'>) =>
-  visit.startDate === visit.endDate
-    ? visit.startDate
-    : `${visit.startDate} 〜 ${visit.endDate}`
+  dateLabelParts(visit).join('')
+// Spoken form of the label; screen readers read "-" inconsistently.
+export const spokenDateLabel = (visit: Pick<Visit, 'startDate' | 'endDate'>) =>
+  dateLabel(visit).replace('-', 'から')
+export function slashDate(value: string) {
+  const { year, month, day } = dateParts(value)
+  return `${year}/${month}/${day}`
+}
+export const visitYear = (visit: Pick<Visit, 'startDate'>) =>
+  dateParts(visit.startDate).year
 export const photoStyle = (id: string) => {
   const hash = Array.from(id).reduce(
     (sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0,

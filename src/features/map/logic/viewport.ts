@@ -55,3 +55,19 @@ export function mapTransform(
     (frame.y + frame.height / 2) * (1 - scale) + offsetY / ratio,
   ]
 }
+
+// Screen position of a map coordinate under the same pan/zoom as mapTransform:
+// the frame centre sits at the viewport centre, moved by the pan offset.
+export function projectPoint(
+  point: number,
+  frameCenter: number,
+  viewportSize: number,
+  drawingScale: number,
+  scale: number,
+  offset: number,
+) {
+  'worklet'
+  return (
+    viewportSize / 2 + drawingScale * scale * (point - frameCenter) + offset
+  )
+}

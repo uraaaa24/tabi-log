@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { photoStyle, validDate, validateVisit } from './record'
+import {
+  dateLabel,
+  photoStyle,
+  slashDate,
+  spokenDateLabel,
+  validDate,
+  validateVisit,
+} from './record'
 import type { Visit } from './record'
 
 const visit: Visit = {
@@ -41,5 +48,25 @@ describe('訪問日の検証', () => {
     expect(photoStyle('first')).toEqual(first)
     expect(first.rotation).toBeGreaterThanOrEqual(-2.5)
     expect(first.size).toBeLessThanOrEqual(0.96)
+  })
+  it('訪問期間は異なる部分だけを終了日に書き、月・年をまたいでも読み違えない', () => {
+    expect(dateLabel({ startDate: '2026-01-01', endDate: '2026-01-01' })).toBe(
+      '2026年1月1日',
+    )
+    expect(dateLabel({ startDate: '2026-01-01', endDate: '2026-01-03' })).toBe(
+      '2026年1月1日-3日',
+    )
+    expect(dateLabel({ startDate: '2026-01-30', endDate: '2026-02-02' })).toBe(
+      '2026年1月30日-2月2日',
+    )
+    expect(dateLabel({ startDate: '2025-12-30', endDate: '2026-01-02' })).toBe(
+      '2025年12月30日-2026年1月2日',
+    )
+    expect(
+      spokenDateLabel({ startDate: '2026-01-01', endDate: '2026-01-03' }),
+    ).toBe('2026年1月1日から3日')
+  })
+  it('入力欄の日付は先頭の0を省いて表示する', () => {
+    expect(slashDate('2026-01-09')).toBe('2026/1/9')
   })
 })

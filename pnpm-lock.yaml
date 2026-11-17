@@ -13,6 +13,9 @@ importers:
 
   .:
     dependencies:
+      '@expo-google-fonts/shippori-mincho':
+        specifier: 0.4.1
+        version: 0.4.1
       '@expo/dom-webview':
         specifier: 58.0.2
         version: 58.0.2(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
@@ -40,6 +43,9 @@ importers:
       expo-file-system:
         specifier: 58.0.13
         version: 58.0.13(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))
+      expo-font:
+        specifier: 58.0.11
+        version: 58.0.11(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
       expo-image-manipulator:
         specifier: 58.0.16
         version: 58.0.16(patch_hash=a83194844ed0408fc65f91e70bdc7cf7926bff02822f8bd7fc7412a4bc32e00c)(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
@@ -1018,6 +1024,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@expo-google-fonts/shippori-mincho@0.4.1':
+    resolution: {integrity: sha512-+nyw31jQWKm8GJLU1kcDYBRJ9jIp/8H6R1RSipkXQMf3+GIKSR3l8zJxuyoeal2+EzFDgo/xFQceM24MItobyA==}
 
   '@expo/cli@58.1.19':
     resolution: {integrity: sha512-zoLhSlFnln0xn1fiW0+kb1J0lNv06HAy+FQ27HHwEEWoAClCE13FnTQBOW5bOVYc3c7hsGM8ypKcZGS7RGqjQA==}
@@ -6774,6 +6783,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
+
+  '@expo-google-fonts/shippori-mincho@0.4.1': {}
 
   '@expo/cli@58.1.19(@expo/dom-webview@58.0.2)(@expo/metro-runtime@58.0.17)(expo-constants@58.0.15)(expo-font@58.0.11(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0))(expo-router@58.0.30)(expo@58.0.23)(react-dom@19.3.0(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)(typescript@5.9.3)':
     dependencies:

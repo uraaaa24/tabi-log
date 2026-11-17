@@ -5,6 +5,7 @@ import {
   boundedOffset,
   fittedMapSize,
   mapTransform,
+  projectPoint,
 } from './viewport'
 
 const frame = { x: 0, y: 0, width: 550, height: 760 }
@@ -68,5 +69,22 @@ describe('指の位置を基準にした地図の拡大縮小', () => {
     const matrix = mapTransform(4, 25, -10, 0.5, shifted)
     expect((matrix[0] * 200 + matrix[4] - 200) * 0.5).toBe(25)
     expect((matrix[3] * 220 + matrix[5] - 220) * 0.5).toBe(-10)
+  })
+  it('ピンは拡大・移動しても地図上の同じ地点に留まる', () => {
+    const shifted = { x: 100, y: 20, width: 200, height: 400 }
+    const [scale, offsetX, offsetY, drawing] = [2.5, 30, -12, 1.6]
+    const matrix = mapTransform(scale, offsetX, offsetY, drawing, shifted)
+    const [pointX, pointY] = [150, 300]
+    // Where the SVG viewBox (centred, uniformly scaled) draws the point.
+    const drawnX =
+      160 + (matrix[0] * pointX + matrix[4] - (shifted.x + 100)) * drawing
+    const drawnY =
+      320 + (matrix[3] * pointY + matrix[5] - (shifted.y + 200)) * drawing
+    expect(projectPoint(pointX, 200, 320, drawing, scale, offsetX)).toBeCloseTo(
+      drawnX,
+    )
+    expect(projectPoint(pointY, 220, 640, drawing, scale, offsetY)).toBeCloseTo(
+      drawnY,
+    )
   })
 })

@@ -31,18 +31,40 @@ export async function readLatestVisitId(
   )
   return row?.id ?? null
 }
+type PinPhoto = Readonly<{
+  placeId: string
+  thumbnail: string
+}>
+// For each pinned place, the first photo of its newest visit that has photos.
+// Places without any photo are absent and show a bare pin on the map.
+export async function readPinPhotos(db: SQLiteDatabase): Promise<PinPhoto[]> {
+  return db.getAllAsync<PinPhoto>(
+    `SELECT placeId, thumbnail FROM (
+      SELECT v.place_id AS placeId, p.thumbnail AS thumbnail,
+        ROW_NUMBER() OVER (
+          PARTITION BY v.place_id
+          ORDER BY v.start_date DESC, v.created_at DESC, v.id DESC, p.sort_order
+        ) AS position
+      FROM visits v
+      JOIN photos p ON p.visit_id = v.id
+      JOIN place_states s ON s.place_id = v.place_id AND s.visited = 1
+    ) WHERE position = 1`,
+  )
+}
 type VisitDate = Readonly<{
   id: string
   startDate: string
   endDate: string
   photoCount: number
+  // The first photo added to the visit, or null when it has no photos.
+  thumbnail: string | null
 }>
 export async function readVisitDates(
   db: SQLiteDatabase,
   placeId: string,
 ): Promise<VisitDate[]> {
   return db.getAllAsync<VisitDate>(
-    'SELECT v.id, v.start_date AS startDate, v.end_date AS endDate, (SELECT count(*) FROM photos WHERE visit_id=v.id) AS photoCount FROM visits v WHERE v.place_id=? ORDER BY v.start_date DESC, v.created_at DESC, v.id DESC',
+    'SELECT v.id, v.start_date AS startDate, v.end_date AS endDate, (SELECT count(*) FROM photos WHERE visit_id=v.id) AS photoCount, (SELECT thumbnail FROM photos WHERE visit_id=v.id ORDER BY sort_order LIMIT 1) AS thumbnail FROM visits v WHERE v.place_id=? ORDER BY v.start_date DESC, v.created_at DESC, v.id DESC',
     placeId,
   )
 }

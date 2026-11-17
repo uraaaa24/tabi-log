@@ -8,8 +8,9 @@ export function useRead<T>(read: () => Promise<T>) {
   useFocusEffect(
     useCallback(() => {
       const controller = new AbortController()
+      // Keep showing the previous result while re-reading on focus, so
+      // returning to a screen does not flash empty or replay entrances.
       setError('')
-      setValue(null)
       read()
         .then((result) => {
           if (!controller.signal.aborted) {

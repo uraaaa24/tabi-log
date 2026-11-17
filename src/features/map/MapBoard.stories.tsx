@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
+import { sampleImageUri } from '../../testing/travel'
 import prefectures from './domain/prefectures.json'
 import { MapBoard } from './MapBoard'
 
@@ -9,7 +10,14 @@ const meta = {
   component: MapBoard,
   parameters: { layout: 'fullscreen' },
   args: {
-    visited: ['JP-13', 'JP-20', 'JP-47'],
+    visited: ['JP-01', 'JP-04', 'JP-19', 'JP-26', 'JP-44', 'JP-47'],
+    photos: {
+      'JP-01': sampleImageUri,
+      'JP-04': sampleImageUri,
+      'JP-19': sampleImageUri,
+      'JP-26': sampleImageUri,
+      'JP-44': sampleImageUri,
+    },
     onSelect: () => undefined,
     onSettings: () => undefined,
     onReload: () => undefined,
