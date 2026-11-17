@@ -1,0 +1,51 @@
+diff --git a/android/src/main/java/expo/modules/imagemanipulator/ImageManipulatorModule.kt b/android/src/main/java/expo/modules/imagemanipulator/ImageManipulatorModule.kt
+index 56e29be232c811af06e703a6d28e6496c047b37d..2fce5cbf09ceac203fb384a2aa89f0a817c1f2e4 100644
+--- a/android/src/main/java/expo/modules/imagemanipulator/ImageManipulatorModule.kt
++++ b/android/src/main/java/expo/modules/imagemanipulator/ImageManipulatorModule.kt
+@@ -1,6 +1,8 @@
+ package expo.modules.imagemanipulator
+ 
+ import android.graphics.Bitmap
++import android.graphics.Canvas
++import android.graphics.Color
+ import android.graphics.drawable.BitmapDrawable
+ import android.graphics.drawable.Drawable
+ import android.net.Uri
+@@ -122,7 +124,17 @@ class ImageManipulatorModule : Module() {
+         val options = options ?: ManipulateOptions()
+         val path = FileUtils.generateRandomOutputPath(appContext.cacheDirectory, options.format)
+         val compression = (options.compress * 100).toInt()
+-        val resultBitmap = image.ref
++        // JPEG has no alpha channel. Composite over white instead of platform-dependent black.
++        val resultBitmap = if (options.format.compressFormat == Bitmap.CompressFormat.JPEG && image.ref.hasAlpha()) {
++          Bitmap.createBitmap(image.ref.width, image.ref.height, Bitmap.Config.ARGB_8888).also { bitmap ->
++            Canvas(bitmap).apply {
++              drawColor(Color.WHITE)
++              drawBitmap(image.ref, 0f, 0f, null)
++            }
++          }
++        } else {
++          image.ref
++        }
+ 
+         var base64String: String? = null
+         appContext.backgroundCoroutineScope.async {
+diff --git a/ios/ImageManipulatorUtils.swift b/ios/ImageManipulatorUtils.swift
+index cb97f3ae9c14bf13e24b197246e7d1f30f36c66a..27ad3cb16313ebbc4497a938e7c7f0f45bae4047 100644
+--- a/ios/ImageManipulatorUtils.swift
++++ b/ios/ImageManipulatorUtils.swift
+@@ -96,7 +96,13 @@ internal func loadImageFromPhotoLibrary(url: URL, maxWidth: Double? = nil, maxHe
+ func imageData(from image: UIImage, format: ImageFormat, compression: Double) -> Data? {
+   switch format {
+   case .jpeg, .jpg:
+-    return image.jpegData(compressionQuality: compression)
++    // Preserve dimensions and composite transparency over the app's white photo backing.
++    let opaque = drawInNewContext(size: image.size) { context in
++      UIColor.white.setFill()
++      context.fill(CGRect(origin: .zero, size: image.size))
++      image.draw(in: CGRect(origin: .zero, size: image.size))
++    }
++    return opaque.jpegData(compressionQuality: compression)
+   case .png:
+     return image.pngData()
+   case .webp:

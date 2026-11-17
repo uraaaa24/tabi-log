@@ -81,12 +81,13 @@ export default defineConfig({
         '.rnstorybook/main.ts',
         '.rnstorybook/preview.ts',
         '.storybook/main.ts',
-        '.storybook/preview.ts',
+        '.storybook/preview.tsx',
         'oxlint.config.ts',
         'commitlint.config.ts',
         'scripts/lint/index.ts',
         'oxfmt.config.ts',
         'vitest.config.ts',
+        'playwright.config.ts',
         'app.config.ts',
       ],
       rules: { 'import/no-default-export': 'off' },
@@ -95,6 +96,8 @@ export default defineConfig({
       files: ['src/**/*.{js,jsx,ts,tsx,mjs,cjs,mts,cts}'],
       rules: {
         'no-console': ['error', { allow: ['warn', 'error'] }],
+        // App code runs on Hermes; build scripts run on Node and may use these.
+        'tabi-log/hermes-builtins': 'error',
       },
     },
   ],

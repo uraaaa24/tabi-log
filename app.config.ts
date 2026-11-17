@@ -9,7 +9,20 @@ const config: ExpoConfig = {
   ios: { bundleIdentifier: 'dev.tabilog.app' },
   android: { package: 'dev.tabilog.app' },
   userInterfaceStyle: 'light',
-  plugins: ['expo-router', 'expo-dev-client'],
+  plugins: [
+    'expo-router',
+    'expo-dev-client',
+    'expo-sqlite',
+    '@react-native-community/datetimepicker',
+    [
+      'expo-image-picker',
+      {
+        photosPermission: '旅の記録に写真を追加するために使用します。',
+        cameraPermission: false,
+        microphonePermission: false,
+      },
+    ],
+  ],
   experiments: { reactCompiler: true },
 }
 
