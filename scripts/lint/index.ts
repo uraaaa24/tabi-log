@@ -1,4 +1,5 @@
 import { componentReturn } from './component-return.ts'
+import { hermesBuiltins } from './hermes-builtins.ts'
 import { multilineProps } from './multiline-props.ts'
 import { noLet } from './no-let.ts'
 import { propsComponentSpacing } from './props-component-spacing.ts'
@@ -10,6 +11,7 @@ export default {
   meta: { name: 'tabi-log' },
   rules: {
     'component-return': componentReturn,
+    'hermes-builtins': hermesBuiltins,
     'no-let': noLet,
     'props-component-spacing': propsComponentSpacing,
     'multiline-props': multilineProps,

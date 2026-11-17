@@ -96,6 +96,8 @@ export default defineConfig({
       files: ['src/**/*.{js,jsx,ts,tsx,mjs,cjs,mts,cts}'],
       rules: {
         'no-console': ['error', { allow: ['warn', 'error'] }],
+        // App code runs on Hermes; build scripts run on Node and may use these.
+        'tabi-log/hermes-builtins': 'error',
       },
     },
   ],

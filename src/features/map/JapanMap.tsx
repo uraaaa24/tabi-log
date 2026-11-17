@@ -25,8 +25,8 @@ const browserSvg = Platform.OS === 'web'
 
 // Southern pins are drawn last so their prints overlap northern ones the way
 // they would if pinned top to bottom.
-const pinOrder = prefectures
-  .toSorted((a, b) => a.y - b.y)
+const pinOrder = [...prefectures]
+  .sort((a, b) => a.y - b.y)
   .map((place) => place.id)
 
 type JapanMapProps = Readonly<{

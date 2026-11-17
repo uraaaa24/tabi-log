@@ -12,8 +12,8 @@ function outline(width: number, height: number) {
   const left = tear
     .map((y, index) => `L${index % 2 ? 2.5 : 0},${y * height}`)
     .join(' ')
-  const right = tear
-    .toReversed()
+  const right = [...tear]
+    .reverse()
     .map((y, index) => `L${width - (index % 2 ? 0 : 2.5)},${y * height}`)
     .join(' ')
   return `M0,0 L${width},0 ${right} L${width},${height} L0,${height} ${left} Z`
