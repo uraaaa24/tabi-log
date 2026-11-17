@@ -14,17 +14,18 @@ export function assertJapanMapImage(buffer: Buffer) {
       ]
     },
   )
+  // colors.board (#E5D7BF) and colors.land (#C99A66), with ±3 for rendering.
   const background = colors.filter(
     ([r = 0, g = 0, b = 0]) =>
-      r >= 102 && r <= 108 && g >= 63 && g <= 69 && b >= 38 && b <= 44,
+      r >= 226 && r <= 232 && g >= 212 && g <= 218 && b >= 188 && b <= 194,
   ).length
   const land = colors.filter(
     ([r = 0, g = 0, b = 0]) =>
-      r >= 221 && r <= 227 && g >= 200 && g <= 206 && b >= 163 && b <= 169,
+      r >= 198 && r <= 204 && g >= 151 && g <= 157 && b >= 99 && b <= 105,
   ).length
   assert.ok(
     background > image.width * image.height * 0.1,
-    'Japan map wood board background did not render',
+    'Japan map board background did not render',
   )
   assert.ok(
     land > image.width * image.height * 0.015,
