@@ -52,7 +52,7 @@ test('既存の記録の編集画面から旅を削除すると、確認の後�
   )
   await answerAlert(page, '訪問記録を削除しますか？', '削除')
 
-  expect(await visitedCount(page)).toBe(1)
+  await expect.poll(() => visitedCount(page)).toBe(1)
   await selectPlace(page, '福岡県', true)
   await expectEditor(page, 'new')
 })
@@ -110,7 +110,7 @@ test('旅の一覧から場所のピンと記録を削除すると、件数と�
   ).toContainText('2回の旅・写真3枚・日記と地図のピンを削除します。')
   await answerAlert(page, 'この場所の記録を削除しますか？', '削除')
 
-  expect(await visitedCount(page)).toBe(0)
+  await expect.poll(() => visitedCount(page)).toBe(0)
   await expect(place(page, '福岡県')).toBeVisible()
   await selectPlace(page, '福岡県')
   await expectEditor(page, 'new')
@@ -127,5 +127,5 @@ test('場所の記録の削除をキャンセルすると、何も消えない',
 
   await expect(timelineTrips(page)).toHaveText(['2025年10月10日'])
   await goBack(page)
-  expect(await visitedCount(page)).toBe(1)
+  await expect.poll(() => visitedCount(page)).toBe(1)
 })

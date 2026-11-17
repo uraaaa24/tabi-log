@@ -26,7 +26,7 @@ test('日付がわからなくても、新規入力画面からピンだけを�
 
   await button(page, '日付なしで、ピンだけ残す').click()
 
-  expect(await visitedCount(page)).toBe(1)
+  await expect.poll(() => visitedCount(page)).toBe(1)
   await expect(place(page, '宮城県', true)).toBeVisible()
 })
 
@@ -40,7 +40,7 @@ test('ピンだけの県を選ぶと新規入力が開き、ピンを外すと�
 
   await button(page, 'ピンを外す').click()
 
-  expect(await visitedCount(page)).toBe(0)
+  await expect.poll(() => visitedCount(page)).toBe(0)
   await expect(place(page, '宮城県')).toBeVisible()
 })
 
@@ -64,7 +64,7 @@ test('ピンだけの県に旅を記録すると、ピンは一つのまま記�
   await goBack(page)
   await goBack(page)
 
-  expect(await visitedCount(page)).toBe(1)
+  await expect.poll(() => visitedCount(page)).toBe(1)
 })
 
 // The pin of a place with records may only be removed from its timeline,

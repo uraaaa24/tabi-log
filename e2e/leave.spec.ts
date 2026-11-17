@@ -26,7 +26,7 @@ test('何も入力していなければ、確認なしで地図に戻れる', as
   await goBack(page)
 
   await expect(alertDialog(page, unsaved)).toHaveCount(0)
-  expect(await visitedCount(page)).toBe(0)
+  await expect.poll(() => visitedCount(page)).toBe(0)
 })
 
 test('入力途中で戻ると確認が出て、「編集を続ける」なら入力が残る', async ({
@@ -52,7 +52,7 @@ test('入力途中で戻り「変更を破棄して戻る」を選ぶと、何�
   await goBack(page)
   await answerAlert(page, unsaved, '変更を破棄して戻る')
 
-  expect(await visitedCount(page)).toBe(0)
+  await expect.poll(() => visitedCount(page)).toBe(0)
   await selectPlace(page, '青森県')
   await expect(diary(page)).toHaveValue('')
 })

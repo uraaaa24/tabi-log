@@ -25,6 +25,8 @@ export async function restartApp(page: Page): Promise<void> {
 export const mapCount = (page: Page) =>
   page.getByLabel(/^訪れた場所 \d+ \/ 47$/).filter({ visible: true })
 
+// The map keeps showing the previous count while it reloads after a screen
+// closes, so assert on it with `expect.poll` rather than reading it once.
 export async function visitedCount(page: Page): Promise<number> {
   await expect(mapCount(page)).toBeVisible()
   const label = (await mapCount(page).getAttribute('aria-label')) ?? ''

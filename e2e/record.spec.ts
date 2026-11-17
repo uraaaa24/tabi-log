@@ -35,7 +35,7 @@ test('未訪問の県を選ぶと新規入力が開き、日付だけで保存�
   await goBack(page)
   await goBack(page)
   await expect(place(page, '長野県', true)).toBeVisible()
-  expect(await visitedCount(page)).toBe(1)
+  await expect.poll(() => visitedCount(page)).toBe(1)
 })
 
 test('訪問日を選ばずに保存すると、理由を示して入力画面に留まる', async ({
@@ -143,7 +143,7 @@ test('保存した記録はアプリを再起動しても残っている', async
 
   await restartApp(page)
 
-  expect(await visitedCount(page)).toBe(1)
+  await expect.poll(() => visitedCount(page)).toBe(1)
   await selectPlace(page, '京都府', true)
   await button(page, '2026年2月11日の旅').click()
   await expectAlbum(page, '京都府')
