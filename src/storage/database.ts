@@ -1,7 +1,7 @@
 import { openDatabaseAsync } from 'expo-sqlite'
 import type { SQLiteDatabase } from 'expo-sqlite'
 
-import prefectures from '../features/map/domain/prefectures.json'
+import { recordablePlaces } from '../features/map/domain/places'
 import { schema } from './schema'
 
 // The records were written by a newer app version; writing them could corrupt them.
@@ -23,7 +23,7 @@ export async function openStore(): Promise<SQLiteDatabase> {
   }
   await db.withExclusiveTransactionAsync(async (tx) => {
     await tx.execAsync(schema)
-    for (const place of prefectures) {
+    for (const place of recordablePlaces) {
       await tx.runAsync(
         'INSERT OR IGNORE INTO places(id,name) VALUES (?,?)',
         place.id,

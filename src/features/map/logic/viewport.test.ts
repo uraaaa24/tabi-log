@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   anchoredOffset,
   boundedOffset,
+  filledCamera,
   fittedMapSize,
   mapTransform,
   projectPoint,
@@ -86,5 +87,36 @@ describe('指の位置を基準にした地図の拡大縮小', () => {
     expect(projectPoint(pointY, 220, 640, drawing, scale, offsetY)).toBeCloseTo(
       drawnY,
     )
+  })
+})
+
+describe('横長の世界地図の最初の表示', () => {
+  const world = { x: -500, y: -250, width: 1000, height: 500 }
+
+  it('縦長の画面の上下に余白を残さず、指定した地点を中央に置く', () => {
+    const camera = filledCamera(400, 800, world, { x: 0, y: 0 })
+    expect(camera.scale).toBe(4)
+    expect(camera.x).toBeCloseTo(0)
+    expect(camera.y).toBeCloseTo(0)
+    // The fitted map is 400 × 200; at 4× it covers the 800-tall screen.
+    expect(200 * camera.scale).toBeGreaterThanOrEqual(800)
+  })
+
+  it('地点が端に近くても、地図の外の余白が見えるところまでは動かさない', () => {
+    const camera = filledCamera(400, 800, world, { x: 480, y: 0 })
+    const drawingScale = 400 / world.width
+    // The right edge of the map stays on or beyond the right of the screen.
+    expect(
+      projectPoint(500, 0, 400, drawingScale, camera.scale, camera.x),
+    ).toBeGreaterThanOrEqual(400)
+    expect(camera.x).toBe(-600)
+  })
+
+  it('画面の大きさが未確定のうちは等倍のままにする', () => {
+    expect(filledCamera(0, 0, world, { x: 0, y: 0 })).toEqual({
+      scale: 1,
+      x: 0,
+      y: 0,
+    })
   })
 })

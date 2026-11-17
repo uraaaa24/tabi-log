@@ -3,8 +3,8 @@ import Svg, { Path } from 'react-native-svg'
 
 import { PushPin } from '../../components/PushPin'
 import { colors } from '../../components/TravelUI'
-import prefectures from './domain/prefectures.json'
-import { pathBounds, squareViewBox } from './logic/shape'
+import { findPlace, isPrefecture } from './domain/places'
+import { mainBounds, pathBounds, squareViewBox } from './logic/shape'
 
 type PlaceSilhouetteProps = Readonly<{
   placeId: string
@@ -19,11 +19,13 @@ export const PlaceSilhouette = ({
   size,
   pinned = false,
 }: PlaceSilhouetteProps) => {
-  const place = prefectures.find((item) => item.id === placeId)
+  const place = findPlace(placeId)
   if (!place) {
     return null
   }
-  const box = pathBounds(place.path)
+  const box = isPrefecture(placeId)
+    ? pathBounds(place.path)
+    : mainBounds(place.path)
   const viewBox = squareViewBox(box)
   const [left = 0, top = 0, side = 1] = viewBox.split(' ').map(Number)
   const pinSize = size * 0.24

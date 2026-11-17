@@ -22,7 +22,7 @@ export const SettingsScreen = () => {
         <Paper>
           <Text style={{ ...textStyle, fontWeight: '600' }}>地図について</Text>
           <Text style={textStyle}>
-            出典：地球地図日本（国土地理院）。GeoJSONへの変換・都道府県名とIDの付与：dataofjapan/land。アプリの木製パーツ風の表示用に県の輪郭や小島を簡略化し、座標・配色を加工しています。
+            日本地図の出典：地球地図日本（国土地理院）。GeoJSONへの変換・都道府県名とIDの付与：dataofjapan/land。アプリの木製パーツ風の表示用に県の輪郭や小島を簡略化し、座標・配色を加工しています。
           </Text>
           <Button
             secondary
@@ -42,6 +42,19 @@ export const SettingsScreen = () => {
               Linking.openURL(
                 'https://github.com/dataofjapan/land/blob/c686f194db009794b63b38585af060fbe1b0b304/README.md',
               ).catch(() => {
+                Alert.alert('リンクを開けませんでした')
+              })
+            }}
+          />
+          <Text style={textStyle}>
+            世界地図の出典：Made with Natural
+            Earth（パブリックドメイン）。太平洋中心のミラー図法で平面に投影し、国境や小島を簡略化しています。選べるのは国連加盟国193とオブザーバー国2の計195か国です。それ以外の地域は形だけを表示しています。
+          </Text>
+          <Button
+            secondary
+            label="Natural Earth"
+            onPress={() => {
+              Linking.openURL('https://www.naturalearthdata.com/').catch(() => {
                 Alert.alert('リンクを開けませんでした')
               })
             }}

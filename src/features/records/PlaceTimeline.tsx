@@ -10,7 +10,7 @@ import { Polaroid } from '../../components/Polaroid'
 import { Surface } from '../../components/Surface'
 import { colors, fonts } from '../../components/TravelUI'
 import { WoodButton } from '../../components/WoodButton'
-import { PlaceSilhouette } from '../map/PlaceSilhouette'
+import { PlaceTitle } from '../map/PlaceTitle'
 import { DateLabel } from './DateLabel'
 import { photoStyle, spokenDateLabel, visitYear } from './domain/record'
 
@@ -122,7 +122,7 @@ export const PlaceTimeline = ({
           accessibilityLabel={placeName}
           style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 8 }}
         >
-          <PlaceSilhouette
+          <PlaceTitle
             placeId={placeId}
             size={140}
             pinned

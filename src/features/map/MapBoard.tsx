@@ -4,27 +4,38 @@ import { ActivityIndicator, Text, View } from 'react-native'
 import { Surface } from '../../components/Surface'
 import { Button, colors, fonts } from '../../components/TravelUI'
 import { WoodButton } from '../../components/WoodButton'
+import { japanId, japanVisited, worldVisited } from './domain/places'
+import type { MapKind } from './domain/places'
 import { JapanMap } from './JapanMap'
+import { MapSwitch } from './MapSwitch'
+import { WorldMap } from './WorldMap'
 
 type MapBoardProps = Readonly<{
+  map: MapKind
+  // Every visited place: prefectures and countries.
   visited: readonly string[] | null
   photos?: Readonly<Record<string, string>>
   loading?: boolean
   error?: string
   onSelect: (id: string) => void
+  onMapChange: (map: MapKind) => void
   onSettings: () => void
   onReload?: () => void
 }>
 
 export const MapBoard = ({
+  map,
   visited,
   photos,
   loading = false,
   error = '',
   onSelect,
+  onMapChange,
   onSettings,
   onReload,
 }: MapBoardProps) => {
+  const inJapan = japanVisited(visited ?? [])
+  const abroad = worldVisited(visited ?? [])
   return (
     <Surface
       kind="board"
@@ -34,14 +45,33 @@ export const MapBoard = ({
         boxShadow: 'inset 0 1px 0 #FFFFFF66, inset 0 0 14px #5E3A1E26',
       }}
     >
-      <JapanMap
-        visited={visited ?? []}
-        ready={visited !== null}
-        photos={photos}
-        onSelect={(id) => {
-          onSelect(id)
-        }}
-      />
+      {/* Both maps stay mounted so each keeps its zoom and position while
+      the other is shown. */}
+      <View style={{ flex: 1, display: map === 'japan' ? 'flex' : 'none' }}>
+        <JapanMap
+          visited={inJapan}
+          ready={visited !== null}
+          photos={photos}
+          onSelect={(id) => {
+            onSelect(id)
+          }}
+        />
+      </View>
+      <View style={{ flex: 1, display: map === 'world' ? 'flex' : 'none' }}>
+        <WorldMap
+          visited={abroad}
+          ready={visited !== null}
+          photos={photos}
+          onSelect={(id) => {
+            // Japan's records belong to its prefectures: open the Japan map.
+            if (id === japanId) {
+              onMapChange('japan')
+            } else {
+              onSelect(id)
+            }
+          }}
+        />
+      </View>
       <View
         pointerEvents="box-none"
         style={{
@@ -54,23 +84,11 @@ export const MapBoard = ({
           justifyContent: 'space-between',
         }}
       >
-        {/* Burned into the board rather than printed on a card. */}
-        <Text
-          accessibilityLabel={`訪れた場所 ${visited?.length ?? 0} / 47`}
-          style={{
-            color: colors.boardMuted,
-            fontFamily: fonts.bold,
-            fontSize: 15,
-            opacity: 0.85,
-            paddingTop: 10,
-            textShadowColor: '#00000066',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 2,
-          }}
-        >
-          {visited?.length ?? '—'}
-          <Text style={{ fontSize: 12 }}> / 47</Text>
-        </Text>
+        {/* No visited count: the board shows pins, not a score. */}
+        <MapSwitch
+          value={map}
+          onChange={onMapChange}
+        />
         <WoodButton
           label="設定"
           size={44}

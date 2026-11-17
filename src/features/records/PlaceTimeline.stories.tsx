@@ -55,3 +55,6 @@ const meta = {
 export default meta
 export const Years: StoryObj<typeof meta> = {}
 export const PinOnly: StoryObj<typeof meta> = { args: { visits: [] } }
+export const Country: StoryObj<typeof meta> = {
+  args: { placeId: 'FR', placeName: 'フランス' },
+}

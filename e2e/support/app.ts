@@ -13,24 +13,51 @@ export async function openApp(page: Page): Promise<void> {
   // "Today" is fixed so that date limits and defaults are deterministic.
   await page.clock.setFixedTime(new Date(`${today}T10:00:00+09:00`))
   await page.goto('/')
-  await expect(mapCount(page)).toBeVisible()
+  await expect(japanMapShown(page)).toBeVisible()
 }
 
+// After a restart the map last looked at (Japan or the world) is shown.
 export async function restartApp(page: Page): Promise<void> {
   await page.goto('/')
-  await expect(mapCount(page)).toBeVisible()
+  await expect(
+    page.getByRole('radio', { checked: true }).filter({ visible: true }),
+  ).toBeVisible()
 }
 
-// The count burned into the board is announced as "訪れた場所 N / 47".
-export const mapCount = (page: Page) =>
-  page.getByLabel(/^訪れた場所 \d+ \/ 47$/).filter({ visible: true })
+// The board names no count, so the map on screen is identified by the
+// pressed-in block of the map switch.
+export const japanMapShown = (page: Page) =>
+  page.getByRole('radio', { name: '日本地図', checked: true })
 
-// The map keeps showing the previous count while it reloads after a screen
-// closes, so assert on it with `expect.poll` rather than reading it once.
+export const worldMapShown = (page: Page) =>
+  page.getByRole('radio', { name: '世界地図', checked: true })
+
+// Places announced as visited on the map currently shown. The other map stays
+// mounted but hidden, so only visible ones are counted.
+const visitedOnMap = async (page: Page) =>
+  page
+    .getByLabel(/、訪問済み$/)
+    .filter({ visible: true })
+    .count()
+
+// The map keeps showing the previous pins while it reloads after a screen
+// closes, so assert on these with `expect.poll` rather than reading once.
 export async function visitedCount(page: Page): Promise<number> {
-  await expect(mapCount(page)).toBeVisible()
-  const label = (await mapCount(page).getAttribute('aria-label')) ?? ''
-  return Number(/(\d+) \//.exec(label)?.[1])
+  await expect(japanMapShown(page)).toBeVisible()
+  return visitedOnMap(page)
+}
+
+export async function visitedCountries(page: Page): Promise<number> {
+  await expect(worldMapShown(page)).toBeVisible()
+  return visitedOnMap(page)
+}
+
+export async function showMap(
+  page: Page,
+  map: '日本地図' | '世界地図',
+): Promise<void> {
+  await page.getByRole('radio', { name: map }).click()
+  await expect(page.getByRole('radio', { name: map })).toBeChecked()
 }
 
 export function place(page: Page, name: string, visited = false): Locator {

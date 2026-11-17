@@ -71,3 +71,35 @@ export function projectPoint(
     viewportSize / 2 + drawingScale * scale * (point - frameCenter) + offset
   )
 }
+
+// A camera that fills the whole viewport with the map (no bands of empty
+// board above and below a wide map), centred as close to `focus` (map units)
+// as the map's edges allow.
+export function filledCamera(
+  width: number,
+  height: number,
+  frame: MapFrame,
+  focus: Readonly<{ x: number; y: number }>,
+) {
+  const content = fittedMapSize(width, height, frame)
+  if (content.width === 0 || content.height === 0) {
+    return { scale: 1, x: 0, y: 0 }
+  }
+  const scale = Math.max(width / content.width, height / content.height)
+  const ratio = content.width / frame.width
+  return {
+    scale,
+    x: boundedOffset(
+      -ratio * scale * (focus.x - (frame.x + frame.width / 2)),
+      width,
+      scale,
+      content.width,
+    ),
+    y: boundedOffset(
+      -ratio * scale * (focus.y - (frame.y + frame.height / 2)),
+      height,
+      scale,
+      content.height,
+    ),
+  }
+}

@@ -65,7 +65,7 @@ const polygonArea = (polygon: Polygon) => {
     : 0
 }
 
-export function partsFrame(parts: readonly Part[]) {
+export function partsFrame(parts: readonly Readonly<{ path: string }>[]) {
   const points = parts.flatMap((part) =>
     [...part.path.matchAll(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/gu)].map(
       (match) => [Number(match[1]), Number(match[2])] as const,

@@ -236,6 +236,55 @@ describe('端末内の記録と関連データ', () => {
       (await readVisitDates(db, 'JP-13')).map((visit) => visit.thumbnail),
     ).toEqual([null, 'photo-1-thumb.jpg'])
     expect(await readPinPhotos(db)).toEqual([
+      { placeId: 'JP', thumbnail: 'photo-1-thumb.jpg' },
+      { placeId: 'JP-13', thumbnail: 'photo-1-thumb.jpg' },
+    ])
+  })
+  it('世界地図の日本のピンには全都道府県で最新の写真を使い、海外の写真は混ぜない', async () => {
+    const { db, sql } = current()
+    sql.exec("INSERT INTO places VALUES ('FR','フランス')")
+    const photo = (id: string) => ({
+      id,
+      path: `${id}.jpg`,
+      thumbnail: `${id}-thumb.jpg`,
+      width: 800,
+      height: 600,
+      rotation: 0,
+      size: 1,
+    })
+    await saveVisit(db, example)
+    await saveVisit(db, {
+      ...example,
+      id: 'nagano',
+      placeId: 'JP-20',
+      startDate: '2025-09-01',
+      endDate: '2025-09-01',
+      photos: [photo('nagano-photo')],
+    })
+    await saveVisit(db, {
+      ...example,
+      id: 'paris',
+      placeId: 'FR',
+      startDate: '2026-01-01',
+      endDate: '2026-01-01',
+      photos: [photo('paris-photo')],
+    })
+
+    expect(await readVisitedPlaceIds(db)).toEqual(
+      expect.arrayContaining(['JP-13', 'JP-20', 'FR']),
+    )
+    expect(await readPinPhotos(db)).toEqual([
+      { placeId: 'FR', thumbnail: 'paris-photo-thumb.jpg' },
+      { placeId: 'JP', thumbnail: 'nagano-photo-thumb.jpg' },
+      { placeId: 'JP-13', thumbnail: 'photo-1-thumb.jpg' },
+      { placeId: 'JP-20', thumbnail: 'nagano-photo-thumb.jpg' },
+    ])
+
+    await setVisited(db, 'JP-20', false)
+
+    expect(await readPinPhotos(db)).toEqual([
+      { placeId: 'FR', thumbnail: 'paris-photo-thumb.jpg' },
+      { placeId: 'JP', thumbnail: 'photo-1-thumb.jpg' },
       { placeId: 'JP-13', thumbnail: 'photo-1-thumb.jpg' },
     ])
   })

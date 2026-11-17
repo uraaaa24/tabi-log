@@ -36,8 +36,8 @@ import {
   saveVisit,
   setVisited,
 } from '../../storage/visits'
-import prefectures from '../map/domain/prefectures.json'
-import { PlaceSilhouette } from '../map/PlaceSilhouette'
+import { findPlace } from '../map/domain/places'
+import { PlaceTitle } from '../map/PlaceTitle'
 import { validateVisit } from './domain/record'
 import type { Visit } from './domain/record'
 import { RecordFields } from './RecordFields'
@@ -267,8 +267,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
       </Paper>
     )
   }
-  const placeName =
-    prefectures.find((place) => place.id === placeId)?.name ?? '旅の記録'
+  const placeName = findPlace(placeId)?.name ?? '旅の記録'
   return (
     <Surface
       kind="paper"
@@ -295,7 +294,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
               accessibilityLabel={`${placeName}、${visitId ? '旅の思い出を編集' : '新しい旅を記録'}`}
               style={{ paddingVertical: 12 }}
             >
-              <PlaceSilhouette
+              <PlaceTitle
                 placeId={placeId}
                 size={112}
               />
