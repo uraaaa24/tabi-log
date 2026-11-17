@@ -1,5 +1,5 @@
 import { launchImageLibraryAsync } from 'expo-image-picker'
-import { router, useNavigation } from 'expo-router'
+import { router } from 'expo-router'
 import { usePreventRemove } from 'expo-router/react-navigation'
 import { useEffect, useState } from 'react'
 import {
@@ -25,6 +25,7 @@ import {
 import { useStore } from '../../storage/StoreProvider'
 import {
   deleteVisit,
+  readLatestVisitId,
   readVisit,
   readVisitedPlaceIds,
   saveVisit,
@@ -42,10 +43,12 @@ type EditScreenProps = Readonly<{
 
 export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
   const db = useStore()
-  const navigation = useNavigation()
   const [initial, setInitial] = useState<Visit | null>(null)
   const [draft, setDraft] = useState<Visit | null>(null)
   const [isPinned, setIsPinned] = useState(false)
+  // A place with trips may only be unpinned from the visit sheet, where the
+  // number of trips and photos to delete is confirmed first.
+  const [hasTrips, setHasTrips] = useState(false)
   const [multipleDays, setMultipleDays] = useState(false)
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
@@ -55,7 +58,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
     JSON.stringify(initial) !== JSON.stringify(draft) ||
     (initial !== null &&
       multipleDays !== (initial.endDate !== initial.startDate))
-  usePreventRemove(!allowLeave && (dirty || Boolean(busy)), ({ data }) => {
+  usePreventRemove(!allowLeave && (dirty || Boolean(busy)), ({ repeat }) => {
     if (busy) {
       return
     }
@@ -66,7 +69,10 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
         style: 'destructive',
         onPress: () => {
           discardDraftPhotos()
-          navigation.dispatch(data.action)
+          // Prevention must be lifted before the blocked action is repeated,
+          // otherwise the repeated action is blocked again.
+          setAllowLeave(true)
+          repeat()
         },
       },
     ])
@@ -75,6 +81,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
     const controller = new AbortController()
     const load = async () => {
       const pinned = (await readVisitedPlaceIds(db)).includes(placeId)
+      const trips = (await readLatestVisitId(db, placeId)) !== null
       const timestamp = new Date().toISOString()
       const visit = visitId
         ? await readVisit(db, visitId)
@@ -95,6 +102,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
       }
       if (!controller.signal.aborted) {
         setIsPinned(pinned)
+        setHasTrips(trips)
         setInitial(visit)
         setDraft(visit)
         setMultipleDays(visit.endDate !== visit.startDate)
@@ -212,7 +220,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
     }
   }
   const savePin = async () => {
-    if (busy || dirty || visitId) {
+    if (busy || dirty || visitId || hasTrips) {
       return
     }
     setBusy(isPinned ? 'ピンを外しています…' : 'ピンを残しています…')
@@ -278,7 +286,7 @@ export const EditScreen = ({ placeId, visitId }: EditScreenProps) => {
             }}
             uriFor={draftPhotoUri}
           />
-          {!visitId && (
+          {!visitId && !hasTrips && (
             <Button
               secondary
               label={isPinned ? 'ピンを外す' : '日付なしで、ピンだけ残す'}
