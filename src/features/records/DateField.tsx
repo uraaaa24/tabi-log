@@ -11,6 +11,10 @@ type DateFieldProps = Readonly<{
   onChange: (value: string) => void
 }>
 
+// iOS shows an inline spinner confirmed by a button; other platforms open a
+// dialog that reports the chosen date itself.
+const inline = Platform.OS === 'ios'
+
 export const DateField = ({ label, value, onChange }: DateFieldProps) => {
   const [today] = useState(() => new Date())
   const [selection, setSelection] = useState(today)
@@ -23,6 +27,7 @@ export const DateField = ({ label, value, onChange }: DateFieldProps) => {
       <Button
         secondary
         label={value || '日付を選択'}
+        accessibilityLabel={`${label}：${value || '未選択'}`}
         onPress={() => {
           setSelection(value ? new Date(`${value}T12:00:00`) : new Date())
           setOpen(true)
@@ -33,21 +38,21 @@ export const DateField = ({ label, value, onChange }: DateFieldProps) => {
           <DateTimePicker
             value={selection}
             mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            display={inline ? 'spinner' : 'default'}
             maximumDate={today}
             onChange={(event, date) => {
-              if (Platform.OS === 'android') {
+              if (!inline) {
                 setOpen(false)
               }
               if (event.type === 'set' && date) {
                 setSelection(date)
-                if (Platform.OS === 'android') {
+                if (!inline) {
                   onChange(localDate(date))
                 }
               }
             }}
           />
-          {Platform.OS === 'ios' && (
+          {inline && (
             <Button
               label="この日付にする"
               onPress={() => {

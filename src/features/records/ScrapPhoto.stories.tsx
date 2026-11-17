@@ -12,7 +12,13 @@ if (!photo) {
 const meta = {
   title: 'Records/ScrapPhoto',
   component: ScrapPhoto,
-  args: { photo, uri: sampleImageUri, number: 1, onPress: () => undefined },
+  args: {
+    photo,
+    uri: sampleImageUri,
+    position: 1,
+    showNumber: true,
+    onPress: () => undefined,
+  },
   decorators: [
     (Story) => (
       <View style={{ width: 360 }}>

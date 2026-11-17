@@ -64,14 +64,20 @@ export const AlbumScreen = ({ visitId }: AlbumScreenProps) => {
           }}
         />
         <Paper>
-          <Text style={textStyle}>
-            {error || '記録を読み込み中、または記録が見つかりません。'}
-          </Text>
-          <Button
-            secondary
-            label="再読み込み"
-            onPress={reload}
-          />
+          {error ? (
+            <>
+              <Text style={textStyle}>{error}</Text>
+              <Button
+                secondary
+                label="再読み込み"
+                onPress={reload}
+              />
+            </>
+          ) : (
+            <Text style={textStyle}>
+              {value ? '記録が見つかりません。' : '記録を読み込み中…'}
+            </Text>
+          )}
         </Paper>
       </View>
     )
@@ -174,10 +180,11 @@ export const AlbumScreen = ({ visitId }: AlbumScreenProps) => {
               .join(' · ')}
           </Text>
         )}
-        {visit.photos.slice(0, 2).map((photo) => (
+        {visit.photos.slice(0, 2).map((photo, index) => (
           <ScrapPhoto
             key={photo.id}
             photo={photo}
+            position={index + 1}
             uri={photoUri(photo.thumbnail)}
             onPress={() => {
               router.push({

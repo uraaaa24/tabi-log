@@ -29,6 +29,7 @@ function pressOpacity(disabled: boolean, pressed: boolean) {
 
 type ButtonProps = Readonly<{
   label: string
+  accessibilityLabel?: string
   onPress: () => void
   disabled?: boolean
   danger?: boolean
@@ -37,6 +38,7 @@ type ButtonProps = Readonly<{
 
 export const Button = ({
   label,
+  accessibilityLabel,
   onPress,
   disabled = false,
   danger = false,
@@ -48,6 +50,7 @@ export const Button = ({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => ({

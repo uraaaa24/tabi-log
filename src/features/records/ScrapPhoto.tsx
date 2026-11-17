@@ -6,20 +6,23 @@ type ScrapPhotoProps = Readonly<{
   photo: Photo
   uri: string
   onPress: () => void
-  number?: number
+  // 1-based position, announced so photos can be told apart.
+  position: number
+  showNumber?: boolean
 }>
 
 export const ScrapPhoto = ({
   photo,
   uri,
   onPress,
-  number,
+  position,
+  showNumber = false,
 }: ScrapPhotoProps) => {
   return (
     <View style={{ padding: 12, alignItems: 'center' }}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`写真${number ?? ''}を拡大`}
+        accessibilityLabel={`写真${position}を拡大`}
         onPress={onPress}
         style={{
           width: `${photo.size * 100}%`,
@@ -45,8 +48,8 @@ export const ScrapPhoto = ({
           style={{ width: '100%', aspectRatio: photo.width / photo.height }}
           resizeMode="contain"
         />
-        {number !== undefined && (
-          <Text style={{ color: '#67543e', paddingTop: 4 }}>{number}</Text>
+        {showNumber && (
+          <Text style={{ color: '#67543e', paddingTop: 4 }}>{position}</Text>
         )}
       </Pressable>
     </View>

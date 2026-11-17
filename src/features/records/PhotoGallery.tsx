@@ -25,7 +25,8 @@ export const PhotoGallery = ({
         <ScrapPhoto
           photo={item}
           uri={uriFor(item)}
-          number={index + 1}
+          position={index + 1}
+          showNumber
           onPress={() => {
             onSelect(item)
           }}
