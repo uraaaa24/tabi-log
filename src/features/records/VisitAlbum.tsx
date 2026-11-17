@@ -90,6 +90,16 @@ export const VisitAlbum = ({
             />
             <Divider />
             <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  color: colors.ink,
+                  fontFamily: fonts.bold,
+                  fontSize: 16,
+                  lineHeight: 22,
+                }}
+              >
+                {placeName}
+              </Text>
               <DateLabel
                 visit={visit}
                 style={{

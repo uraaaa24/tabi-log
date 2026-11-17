@@ -8,7 +8,7 @@ import {
   expectEditor,
   expectTimeline,
   goBack,
-  mapCount,
+  japanMapShown,
   openApp,
   pickDate,
   saveToAlbum,
@@ -113,7 +113,7 @@ test('アルバムから戻ると旅の一覧、一覧から戻ると地図に�
   await expectTimeline(page, '石川県')
   await goBack(page)
 
-  await expect(mapCount(page)).toBeVisible()
+  await expect(japanMapShown(page)).toBeVisible()
 })
 
 test('存在しない記録へのリンクを開くと、読み込み中のままにせず見つからないと伝える', async ({
@@ -123,5 +123,5 @@ test('存在しない記録へのリンクを開くと、読み込み中のま�
 
   await expect(page.getByText('記録が見つかりません。')).toBeVisible()
   await goBack(page)
-  await expect(mapCount(page)).toBeVisible()
+  await expect(japanMapShown(page)).toBeVisible()
 })

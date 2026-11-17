@@ -2,7 +2,7 @@
 
 ## 現在の状態
 
-ユーザーの実装開始許可を受け、Expo・React Native・TypeScriptの初期構築を実装した。Expo Router、NativeWind・Lucideの最小共通部品、ブラウザ・ネイティブStorybook、React Compilerを導入し、既存の品質チェック基盤を引き継いだ。Phase2の日本地図・訪問履歴・写真保存・アルバムを実装した。実装範囲と実機未確認事項は[Phase2の記録](phase-two-status.md)を参照。世界地図などは未実装。起動・ローカルDevelopment Build・クラウド検証は[開発手順](development.md)を参照する。HTMLモックは画面検討用資料で、実データの保存機能は持たない。
+ユーザーの実装開始許可を受け、Expo・React Native・TypeScriptの初期構築を実装した。Expo Router、NativeWind・Lucideの最小共通部品、ブラウザ・ネイティブStorybook、React Compilerを導入し、既存の品質チェック基盤を引き継いだ。Phase2の日本地図・訪問履歴・写真保存・アルバムを実装した。実装範囲と実機未確認事項は[Phase2の記録](phase-two-status.md)を参照。Phase3で世界地図を実装した（[Phase3の記録](phase-three-status.md)）。初回チュートリアルなどは未実装。起動・ローカルDevelopment Build・クラウド検証は[開発手順](development.md)を参照する。HTMLモックは画面検討用資料で、実データの保存機能は持たない。
 
 MVPは、木製の地図に訪問済みのピンを留め、県・国ごとの訪問履歴から写真と日記を振り返る個人用モバイルアプリ。日本・世界の両方を含め、バックアップ・機種変更時の引き継ぎは将来候補とする。
 
@@ -18,6 +18,7 @@ MVPは、木製の地図に訪問済みのピンを留め、県・国ごとの�
 | [端末内データの設計案](data-design.md)      | DBの基本構造、保存・削除、写真配置の設計       |
 | [技術構成の検討](technical-options.md)      | 採用技術、比較、バージョン候補、開発ハーネス   |
 | [開発計画](development-plan.md)             | 合意した開発の順番                             |
+| [Phase3の記録](phase-three-status.md)       | 世界地図の実装範囲・決定・検証と残件           |
 | [ブラウザE2Eテスト](e2e-testing.md)         | Playwrightで検証する範囲・差し替え・限界       |
 | [初期構築の作業計画](initial-setup-plan.md) | 開発基盤の作業範囲と実装状況                   |
 | [HTMLモックの説明](mockups/README.md)       | モックで確認できる内容と未実装の動作           |

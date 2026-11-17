@@ -52,3 +52,9 @@ export const TwoPhotos: StoryObj<typeof meta> = {
 export const Empty: StoryObj<typeof meta> = {
   args: { visit: { ...visit, photos: [], diary: '', transports: [] } },
 }
+export const LongCountryName: StoryObj<typeof meta> = {
+  args: {
+    placeName: 'セントビンセント・グレナディーン',
+    visit: { ...visit, placeId: 'VC' },
+  },
+}

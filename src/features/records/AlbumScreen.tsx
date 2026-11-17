@@ -12,7 +12,7 @@ import {
 import { photoUri } from '../../storage/photos'
 import { useStore } from '../../storage/StoreProvider'
 import { readVisit } from '../../storage/visits'
-import prefectures from '../map/domain/prefectures.json'
+import { findPlace } from '../map/domain/places'
 import { useRead } from './useRead'
 import { VisitAlbum } from './VisitAlbum'
 
@@ -66,10 +66,7 @@ export const AlbumScreen = ({ visitId }: AlbumScreenProps) => {
   }
   return (
     <VisitAlbum
-      placeName={
-        prefectures.find((place) => place.id === visit.placeId)?.name ??
-        'アルバム'
-      }
+      placeName={findPlace(visit.placeId)?.name ?? 'アルバム'}
       visit={visit}
       width={width}
       uriFor={(photo) => photoUri(photo.thumbnail)}

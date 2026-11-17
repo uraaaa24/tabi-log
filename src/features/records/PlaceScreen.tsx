@@ -5,7 +5,7 @@ import { Alert } from 'react-native'
 import { collectPhotos, photoUri } from '../../storage/photos'
 import { useStore } from '../../storage/StoreProvider'
 import { readVisitDates, setVisited } from '../../storage/visits'
-import prefectures from '../map/domain/prefectures.json'
+import { findPlace } from '../map/domain/places'
 import { PlaceTimeline } from './PlaceTimeline'
 import { useRead } from './useRead'
 
@@ -39,9 +39,7 @@ export const PlaceScreen = ({ placeId }: PlaceScreenProps) => {
   return (
     <PlaceTimeline
       placeId={placeId}
-      placeName={
-        prefectures.find((place) => place.id === placeId)?.name ?? '旅の記録'
-      }
+      placeName={findPlace(placeId)?.name ?? '旅の記録'}
       visits={visits.map((visit) => ({
         ...visit,
         uri: visit.thumbnail ? photoUri(visit.thumbnail) : null,

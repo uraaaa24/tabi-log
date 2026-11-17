@@ -36,19 +36,27 @@ type PinPhoto = Readonly<{
   thumbnail: string
 }>
 // For each pinned place, the first photo of its newest visit that has photos.
-// Places without any photo are absent and show a bare pin on the map.
+// Places without any photo are absent and show a bare pin on the map. Japan
+// on the world map ('JP') takes the newest such photo of all prefectures.
 export async function readPinPhotos(db: SQLiteDatabase): Promise<PinPhoto[]> {
   return db.getAllAsync<PinPhoto>(
-    `SELECT placeId, thumbnail FROM (
+    `WITH pinned AS (
       SELECT v.place_id AS placeId, p.thumbnail AS thumbnail,
-        ROW_NUMBER() OVER (
-          PARTITION BY v.place_id
-          ORDER BY v.start_date DESC, v.created_at DESC, v.id DESC, p.sort_order
-        ) AS position
+        v.start_date, v.created_at, v.id, p.sort_order
       FROM visits v
       JOIN photos p ON p.visit_id = v.id
       JOIN place_states s ON s.place_id = v.place_id AND s.visited = 1
-    ) WHERE position = 1`,
+    ), ranked AS (
+      SELECT placeId, thumbnail, ROW_NUMBER() OVER (
+        PARTITION BY placeId
+        ORDER BY start_date DESC, created_at DESC, id DESC, sort_order
+      ) AS position FROM pinned
+      UNION ALL
+      SELECT 'JP', thumbnail, ROW_NUMBER() OVER (
+        ORDER BY start_date DESC, created_at DESC, id DESC, sort_order
+      ) FROM pinned WHERE placeId LIKE 'JP-%'
+    )
+    SELECT placeId, thumbnail FROM ranked WHERE position = 1 ORDER BY placeId`,
   )
 }
 type VisitDate = Readonly<{

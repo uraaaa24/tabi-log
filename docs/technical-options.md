@@ -6,7 +6,7 @@
 
 バックアップ・復元はMVPから除外した。react-native-zip-archive・expo-sharing・バックアップ検証用ValibotはMVPへ導入しない。将来のためだけにbackup機能フォルダや処理を先行実装しない。
 
-React Native + Expo + TypeScriptの初期構築を実装済み。実装した範囲・固定した版・公式情報の根拠・検証結果は[開発手順](development.md)を参照する。以下には製品機能の採用方針と過去の検討案も含む。Phase2で日本地図・SQLite・写真保存を実装した。FlashListも対応表の2.0.2に固定して写真一覧に採用した。[Phase2の記録](phase-two-status.md)に版・検証・実機確認の残件を記載する。世界地図などは未実装。HTMLモックは見た目と操作を確認する資料として扱う。
+React Native + Expo + TypeScriptの初期構築を実装済み。実装した範囲・固定した版・公式情報の根拠・検証結果は[開発手順](development.md)を参照する。以下には製品機能の採用方針と過去の検討案も含む。Phase2で日本地図・SQLite・写真保存を実装した。FlashListも対応表の2.0.2に固定して写真一覧に採用した。[Phase2の記録](phase-two-status.md)に版・検証・実機確認の残件を記載する。Phase3で世界地図を実装した（[Phase3の記録](phase-three-status.md)）。HTMLモックは見た目と操作を確認する資料として扱う。
 
 保存対象の関係と、保存・削除の整合性は[端末内データの設計案](data-design.md)で具体化する。
 

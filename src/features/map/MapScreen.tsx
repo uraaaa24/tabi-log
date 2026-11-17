@@ -1,7 +1,8 @@
 import { router, useFocusEffect } from 'expo-router'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { photoUri } from '../../storage/photos'
+import { readLastMap, saveLastMap } from '../../storage/settings'
 import { useStore } from '../../storage/StoreProvider'
 import {
   readLatestVisitId,
@@ -9,12 +10,22 @@ import {
   readVisitedPlaceIds,
 } from '../../storage/visits'
 import { useRead } from '../records/useRead'
+import type { MapKind } from './domain/places'
 import { MapBoard } from './MapBoard'
 
 export const MapScreen = () => {
   const db = useStore()
   const opening = useRef(false)
   const [selectionError, setSelectionError] = useState('')
+  // Null until the map last looked at has been read.
+  const [map, setMap] = useState<MapKind | null>(null)
+  useEffect(() => {
+    readLastMap(db)
+      .then(setMap)
+      .catch(() => {
+        setMap('japan')
+      })
+  }, [db])
   useFocusEffect(
     useCallback(() => {
       opening.current = false
@@ -54,11 +65,18 @@ export const MapScreen = () => {
   }
   return (
     <MapBoard
-      visited={value?.visited ?? null}
+      map={map ?? 'japan'}
+      visited={map ? (value?.visited ?? null) : null}
       photos={value?.photos}
-      loading={value === null && !error}
+      loading={(value === null || map === null) && !error}
       error={error || selectionError}
       onReload={error ? reload : undefined}
+      onMapChange={(next) => {
+        setMap(next)
+        // Remembering the choice is a convenience; the switch itself works
+        // even if it cannot be saved.
+        saveLastMap(db, next).catch(() => undefined)
+      }}
       onSettings={() => {
         router.push('/settings')
       }}

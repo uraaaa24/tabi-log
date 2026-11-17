@@ -39,6 +39,9 @@ type MapPinProps = Readonly<{
   uri?: string
   pinSize: number
   photoWidth: number
+  // The zoom at which the pin and print are drawn at full size: 1 for a map
+  // that opens whole, the opening zoom for one that opens zoomed in.
+  restScale?: number
   // True only for a pin added while the map is open (e.g. right after the
   // first record of a place); pins already on the board are simply there.
   pushIn: boolean
@@ -58,6 +61,7 @@ export const MapPin = ({
   uri,
   pinSize,
   photoWidth,
+  restScale = 1,
   pushIn,
   onPress,
 }: MapPinProps) => {
@@ -71,10 +75,13 @@ export const MapPin = ({
     }
   }, [drop, pushIn])
   // Prints shrink more slowly than the map grows, so they stay legible when
-  // zoomed out but stop covering neighbouring prefectures when zoomed in.
+  // zoomed out but stop covering neighbouring places when zoomed in. Beyond
+  // 6× the resting zoom (the world goes to 20×) they keep their size, and
+  // zooming out past the resting zoom does not enlarge them.
   const container = useAnimatedStyle(() => {
     const { scale, x: offsetX, y: offsetY } = camera.value
-    const shrink = Math.pow(scale, -0.7)
+    const zoom = Math.max(1, Math.min(scale / restScale, 6))
+    const shrink = Math.pow(zoom, -0.7)
     return {
       transform: [
         {

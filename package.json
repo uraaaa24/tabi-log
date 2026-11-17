@@ -30,6 +30,7 @@
     "check:native-bundles": "pnpm storybook:generate && node scripts/check-native-bundles.ts",
     "check:android-ui": "node scripts/check-android-ui.ts",
     "map:generate": "node scripts/build/japan-map.ts",
+    "map:world": "node scripts/build/world-map.ts",
     "build:e2e": "cross-env TABI_E2E=1 expo export --platform web --output-dir dist/e2e-web --clear",
     "test:e2e": "pnpm build:e2e && playwright test"
   },
