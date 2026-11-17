@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const port = 8081
+// Not Metro's 8081: a running `pnpm start` would otherwise be reused as the
+// E2E server and serve the development bundle instead of the export.
+const port = 8093
 
 // Drives the real screens in Chromium through the E2E web export
 // (`pnpm build:e2e`). See docs/e2e-testing.md for what this does not cover.

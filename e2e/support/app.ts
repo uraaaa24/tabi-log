@@ -21,11 +21,14 @@ export async function restartApp(page: Page): Promise<void> {
   await expect(mapCount(page)).toBeVisible()
 }
 
-const mapCount = (page: Page) => page.getByText(/^\d+$/).first()
+// The count burned into the board is announced as "訪れた場所 N / 47".
+export const mapCount = (page: Page) =>
+  page.getByLabel(/^訪れた場所 \d+ \/ 47$/).filter({ visible: true })
 
 export async function visitedCount(page: Page): Promise<number> {
-  await expect(page.getByText('/ 47　訪れた場所')).toBeVisible()
-  return Number(await mapCount(page).textContent())
+  await expect(mapCount(page)).toBeVisible()
+  const label = (await mapCount(page).getAttribute('aria-label')) ?? ''
+  return Number(/(\d+) \//.exec(label)?.[1])
 }
 
 export function place(page: Page, name: string, visited = false): Locator {
@@ -34,7 +37,11 @@ export function place(page: Page, name: string, visited = false): Locator {
   })
 }
 
-// Taps the land of a prefecture like a person would. Shapes made of islands
+// Opens a place like a person would. A visited place is opened from its pin
+// (or the print hanging from it), which may cover a small prefecture's land;
+// the spec lets either the pin or the shape select it.
+//
+// Otherwise it taps the land of the prefecture. Shapes made of islands
 // (e.g. Okinawa) have the centre of their bounding box in the sea, so the
 // point is taken from the shape's own fill nearest that centre. The point is
 // recomputed on each attempt because the map may still be moving (screen
@@ -44,6 +51,10 @@ export async function selectPlace(
   name: string,
   visited = false,
 ): Promise<void> {
+  if (visited) {
+    await button(page, `${name}の写真とピン`).click()
+    return
+  }
   const target = place(page, name, visited)
   await expect(async () => {
     const point = await target.evaluate(landPoint)
@@ -121,15 +132,39 @@ export async function save(page: Page): Promise<void> {
   await button(page, '旅の記録を保存').click()
 }
 
-// The album is identified by its visit switcher, which no other screen has.
-// Text such as the diary also appears in the editor's input, so it cannot
-// prove that the save finished.
+const heading = (page: Page, name: RegExp) =>
+  page.getByRole('heading', { name }).filter({ visible: true })
+
+// The album is identified by its edit button and its place heading, which no
+// other screen has together. Text such as the diary also appears in the
+// editor's input, so it cannot prove that the save finished.
 export async function expectAlbum(
   page: Page,
   placeName: string,
 ): Promise<void> {
-  await expect(button(page, '訪問履歴を切り替える')).toBeVisible()
-  await expect(page.getByText(placeName, { exact: true })).toBeVisible()
+  await expect(button(page, 'この旅を編集')).toBeVisible()
+  await expect(heading(page, new RegExp(`^${placeName}、`))).toBeVisible()
+}
+
+// The list of every trip to one place, opened from its pin on the map.
+export async function expectTimeline(
+  page: Page,
+  placeName: string,
+): Promise<void> {
+  await expect(button(page, '地図へ戻る')).toBeVisible()
+  await expect(heading(page, new RegExp(`^${placeName}$`))).toBeVisible()
+}
+
+// Trips listed on the place timeline, newest first.
+export const timelineTrips = (page: Page) => button(page, /の旅(、写真\d+枚)?$/)
+
+export async function expectEditor(
+  page: Page,
+  mode: 'new' | 'edit',
+): Promise<void> {
+  await expect(
+    heading(page, mode === 'new' ? /、新しい旅を記録$/ : /、旅の思い出を編集$/),
+  ).toBeVisible()
 }
 
 export async function saveToAlbum(
@@ -140,8 +175,12 @@ export async function saveToAlbum(
   await expectAlbum(page, placeName)
 }
 
+// Each screen names its way back after where it leads.
 export async function goBack(page: Page): Promise<void> {
-  await button(page, '戻る').click()
+  await button(
+    page,
+    /^(戻る|地図へ戻る|旅の一覧へ戻る|編集をやめて戻る)$/,
+  ).click()
 }
 
 export function alertDialog(page: Page, title: string): Locator {

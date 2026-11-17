@@ -23,7 +23,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 const editorPhotos = (page: Page) =>
-  page.getByRole('button', { name: '外す', exact: true })
+  page.getByRole('button', { name: /^写真\d+を外す$/ })
 
 test('選んだ写真は保存前から編集画面に並ぶ', async ({ page }) => {
   await addPhotos(page, [landscape, portrait])
@@ -54,9 +54,8 @@ test('写真3枚以上の旅は、アルバムに先頭2枚と一覧への導線
   await saveToAlbum(page, '広島県')
   await expect(button(page, /^写真[12]を拡大$/)).toHaveCount(2)
 
-  await button(page, '写真をすべて見る · 3枚').click()
+  await button(page, '写真をすべて見る（3枚）').click()
 
-  await expect(page.getByText('旅の写真')).toBeVisible()
   await expect(button(page, /^写真[123]を拡大$/)).toHaveCount(3)
   await expectImagesLoaded(page.locator('body'), 3)
 })
@@ -64,7 +63,7 @@ test('写真3枚以上の旅は、アルバムに先頭2枚と一覧への導線
 test('写真一覧で写真を選ぶと全画面で表示し、一覧へ戻れる', async ({ page }) => {
   await addPhotos(page, [landscape, portrait, landscape])
   await saveToAlbum(page, '広島県')
-  await button(page, '写真をすべて見る · 3枚').click()
+  await button(page, '写真をすべて見る（3枚）').click()
   // Wait until the album underneath has slid away and only the list is shown.
   await expect(button(page, /^写真[123]を拡大$/)).toHaveCount(3)
 
@@ -126,6 +125,7 @@ test('保存した写真はアプリを再起動しても表示される', async
 
   await restartApp(page)
   await selectPlace(page, '広島県', true)
+  await button(page, '2026年1月3日の旅、写真2枚').click()
 
   await expect(button(page, /^写真[12]を拡大$/)).toHaveCount(2)
   await expectImagesLoaded(page.locator('body'), 2)

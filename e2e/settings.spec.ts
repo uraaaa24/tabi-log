@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { button, goBack, openApp } from './support/app'
+import { button, goBack, mapCount, openApp } from './support/app'
 
 test('設定から地図の出典を確認し、地図に戻れる', async ({ page }) => {
   await openApp(page)
@@ -11,5 +11,5 @@ test('設定から地図の出典を確認し、地図に戻れる', async ({ pa
     page.getByText(/^出典：地球地図日本（国土地理院）/),
   ).toBeVisible()
   await goBack(page)
-  await expect(page.getByText('/ 47　訪れた場所')).toBeVisible()
+  await expect(mapCount(page)).toBeVisible()
 })

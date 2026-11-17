@@ -22,7 +22,9 @@ if (process.env.TABI_E2E === '1') {
   baseConfig.resolver.assetExts = [...baseConfig.resolver.assetExts, 'wasm']
   const resolveRequest = baseConfig.resolver.resolveRequest
   baseConfig.resolver.resolveRequest = (context, moduleName, platform) => {
-    if (platform !== 'web') {
+    // Metro resolves a package's `browser: { file: false }` empty module
+    // without a platform; only an explicit native platform is refused.
+    if (platform !== null && platform !== 'web') {
       throw new Error('TABI_E2E is only for the browser E2E build.')
     }
     // A substitute may import the real package it wraps.

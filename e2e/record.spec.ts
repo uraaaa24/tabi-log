@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test'
 
 import {
+  button,
   diary,
   expectAlbum,
+  expectEditor,
   goBack,
   openApp,
   pickDate,
@@ -24,13 +26,13 @@ test('未訪問の県を選ぶと新規入力が開き、日付だけで保存�
   page,
 }) => {
   await selectPlace(page, '長野県')
-  await expect(page.getByText('新しい旅を記録')).toBeVisible()
+  await expectEditor(page, 'new')
   await pickDate(page, '訪問日', '2026-05-03')
 
   await saveToAlbum(page, '長野県')
 
-  await expect(page.getByText('2026-05-03', { exact: true })).toBeVisible()
-  await expect(page.getByText('1回の旅')).toBeVisible()
+  await expect(page.getByLabel('2026年5月3日', { exact: true })).toBeVisible()
+  await goBack(page)
   await goBack(page)
   await expect(place(page, '長野県', true)).toBeVisible()
   expect(await visitedCount(page)).toBe(1)
@@ -45,7 +47,7 @@ test('訪問日を選ばずに保存すると、理由を示して入力画面�
   await save(page)
 
   await expect(page.getByRole('alert')).toHaveText('訪問日を選んでください。')
-  await expect(page.getByText('新しい旅を記録')).toBeVisible()
+  await expectEditor(page, 'new')
   await expect(diary(page)).toHaveValue('日付を忘れた')
 })
 
@@ -62,7 +64,9 @@ test('日記と交通手段（その他を含む）を保存すると、アル�
   await saveToAlbum(page, '北海道')
 
   await expect(page.getByText('朝市で海鮮丼を食べた。')).toBeVisible()
-  await expect(page.getByText('飛行機 · レンタサイクル')).toBeVisible()
+  await expect(
+    page.getByLabel('交通手段：飛行機、レンタサイクル'),
+  ).toBeVisible()
 })
 
 test('交通手段の「その他」を選んで内容が空なら保存できない', async ({
@@ -82,25 +86,41 @@ test('交通手段の「その他」を選んで内容が空なら保存でき�
 test('複数日の旅は期間で表示される', async ({ page }) => {
   await selectPlace(page, '沖縄県')
   await pickDate(page, '訪問日', '2026-03-10')
-  await page.getByRole('switch', { name: '複数日の旅' }).click()
   await pickDate(page, '終了日', '2026-03-13')
 
   await saveToAlbum(page, '沖縄県')
 
-  await expect(page.getByText('2026-03-10 〜 2026-03-13')).toBeVisible()
+  await expect(
+    page.getByLabel('2026年3月10日から13日', { exact: true }),
+  ).toBeVisible()
 })
 
-test('終了日が開始日より前なら保存できない', async ({ page }) => {
+test('訪問日を選ぶと、終了日はその日にそろい日帰りの旅になる', async ({
+  page,
+}) => {
+  await selectPlace(page, '沖縄県')
+
+  await pickDate(page, '訪問日', '2026-03-10')
+
+  await expect(
+    page.getByRole('button', { name: '終了日：2026-03-10' }),
+  ).toBeVisible()
+  await saveToAlbum(page, '沖縄県')
+  await expect(page.getByLabel('2026年3月10日', { exact: true })).toBeVisible()
+})
+
+test('開始日を終了日より後に変えると、終了日も開始日にそろう', async ({
+  page,
+}) => {
   await selectPlace(page, '沖縄県')
   await pickDate(page, '訪問日', '2026-03-10')
-  await page.getByRole('switch', { name: '複数日の旅' }).click()
-  await pickDate(page, '終了日', '2026-03-09')
+  await pickDate(page, '終了日', '2026-03-13')
 
-  await save(page)
+  await pickDate(page, '訪問日', '2026-03-15')
 
-  await expect(page.getByRole('alert')).toHaveText(
-    '終了日は開始日以降にしてください。',
-  )
+  await expect(
+    page.getByRole('button', { name: '終了日：2026-03-15' }),
+  ).toBeVisible()
 })
 
 test('今日より後の日付は日付選択で選べない', async ({ page }) => {
@@ -115,20 +135,6 @@ test('今日より後の日付は日付選択で選べない', async ({ page }) 
   await expect(dialog.getByRole('button', { name: 'OK' })).toBeEnabled()
 })
 
-test('複数日をやめて保存すると、終了日は開始日と同じ日として保存される', async ({
-  page,
-}) => {
-  await selectPlace(page, '沖縄県')
-  await pickDate(page, '訪問日', '2026-03-10')
-  await page.getByRole('switch', { name: '複数日の旅' }).click()
-  await pickDate(page, '終了日', '2026-03-13')
-  await page.getByRole('switch', { name: '複数日の旅' }).click()
-
-  await saveToAlbum(page, '沖縄県')
-
-  await expect(page.getByText('2026-03-10', { exact: true })).toBeVisible()
-})
-
 test('保存した記録はアプリを再起動しても残っている', async ({ page }) => {
   await selectPlace(page, '京都府')
   await pickDate(page, '訪問日', '2026-02-11')
@@ -139,6 +145,7 @@ test('保存した記録はアプリを再起動しても残っている', async
 
   expect(await visitedCount(page)).toBe(1)
   await selectPlace(page, '京都府', true)
+  await button(page, '2026年2月11日の旅').click()
   await expectAlbum(page, '京都府')
   await expect(page.getByText('雪の金閣寺')).toBeVisible()
 })

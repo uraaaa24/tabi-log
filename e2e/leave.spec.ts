@@ -5,6 +5,7 @@ import {
   answerAlert,
   button,
   diary,
+  expectEditor,
   goBack,
   openApp,
   pickDate,
@@ -38,7 +39,7 @@ test('入力途中で戻ると確認が出て、「編集を続ける」なら�
   await answerAlert(page, unsaved, '編集を続ける')
 
   await expect(diary(page)).toHaveValue('ねぶた祭')
-  await expect(page.getByText('新しい旅を記録')).toBeVisible()
+  await expectEditor(page, 'new')
 })
 
 test('入力途中で戻り「変更を破棄して戻る」を選ぶと、何も保存されずに地図に戻る', async ({

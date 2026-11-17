@@ -8,6 +8,8 @@ import {
   button,
   diary,
   expectAlbum,
+  expectEditor,
+  goBack,
   landscape,
   openApp,
   pickDate,
@@ -15,6 +17,7 @@ import {
   portrait,
   saveToAlbum,
   selectPlace,
+  timelineTrips,
   visitedCount,
 } from './support/app'
 
@@ -51,7 +54,7 @@ test('既存の記録の編集画面から旅を削除すると、確認の後�
 
   expect(await visitedCount(page)).toBe(1)
   await selectPlace(page, '福岡県', true)
-  await expect(page.getByText('新しい旅を記録')).toBeVisible()
+  await expectEditor(page, 'new')
 })
 
 test('旅の削除をキャンセルすると、記録は残る', async ({ page }) => {
@@ -61,7 +64,7 @@ test('旅の削除をキャンセルすると、記録は残る', async ({ page 
 
   await button(page, 'この旅の記録を削除').click()
   await answerAlert(page, '訪問記録を削除しますか？', 'キャンセル')
-  await button(page, '戻る').click()
+  await goBack(page)
 
   await expectAlbum(page, '福岡県')
   await expect(page.getByText('屋台めぐり')).toBeVisible()
@@ -70,6 +73,7 @@ test('旅の削除をキャンセルすると、記録は残る', async ({ page 
 test('複数ある旅の一つを削除しても、他の旅は残る', async ({ page }) => {
   await selectPlace(page, '福岡県')
   await recordVisit(page, '2025-10-10', '屋台めぐり')
+  await goBack(page)
   await button(page, '新しい旅を記録').click()
   await recordVisit(page, '2024-03-01', '太宰府')
   await button(page, 'この旅を編集').click()
@@ -78,9 +82,10 @@ test('複数ある旅の一つを削除しても、他の旅は残る', async ({
   await answerAlert(page, '訪問記録を削除しますか？', '削除')
   await selectPlace(page, '福岡県', true)
 
+  await expect(timelineTrips(page)).toHaveText(['2025年10月10日'])
+  await button(page, '2025年10月10日の旅').click()
   await expectAlbum(page, '福岡県')
   await expect(page.getByText('屋台めぐり')).toBeVisible()
-  await expect(page.getByText('1回の旅')).toBeVisible()
 })
 
 test('新規入力画面には旅の削除操作がない', async ({ page }) => {
@@ -89,14 +94,15 @@ test('新規入力画面には旅の削除操作がない', async ({ page }) => 
   await expect(button(page, 'この旅の記録を削除')).toHaveCount(0)
 })
 
-test('訪問履歴から場所のピンと記録を削除すると、件数と写真枚数を確認したうえで全て消え、地図のピンも外れる', async ({
+test('旅の一覧から場所のピンと記録を削除すると、件数と写真枚数を確認したうえで全て消え、地図のピンも外れる', async ({
   page,
 }) => {
   await selectPlace(page, '福岡県')
   await recordVisit(page, '2025-10-10', '屋台めぐり', 2)
+  await goBack(page)
   await button(page, '新しい旅を記録').click()
   await recordVisit(page, '2024-03-01', '太宰府', 1)
-  await button(page, '訪問履歴を切り替える').click()
+  await goBack(page)
 
   await button(page, 'この場所のピンと記録を削除').click()
   await expect(
@@ -107,19 +113,19 @@ test('訪問履歴から場所のピンと記録を削除すると、件数と�
   expect(await visitedCount(page)).toBe(0)
   await expect(place(page, '福岡県')).toBeVisible()
   await selectPlace(page, '福岡県')
-  await expect(page.getByText('新しい旅を記録')).toBeVisible()
+  await expectEditor(page, 'new')
   await expect(button(page, '日付なしで、ピンだけ残す')).toBeVisible()
 })
 
 test('場所の記録の削除をキャンセルすると、何も消えない', async ({ page }) => {
   await selectPlace(page, '福岡県')
   await recordVisit(page, '2025-10-10', '屋台めぐり')
-  await button(page, '訪問履歴を切り替える').click()
+  await goBack(page)
 
   await button(page, 'この場所のピンと記録を削除').click()
   await answerAlert(page, 'この場所の記録を削除しますか？', 'キャンセル')
 
-  await expect(page.getByText('屋台めぐり')).toBeVisible()
-  await button(page, '戻る').click()
+  await expect(timelineTrips(page)).toHaveText(['2025年10月10日'])
+  await goBack(page)
   expect(await visitedCount(page)).toBe(1)
 })

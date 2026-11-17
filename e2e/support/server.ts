@@ -8,7 +8,7 @@ import path from 'node:path'
 // Unknown paths fall back to index.html so deep links reach the router.
 
 const root = path.resolve(process.argv[2] ?? 'dist/e2e-web')
-const port = Number(process.argv[3] ?? 8081)
+const port = Number(process.argv[3] ?? 8093)
 const types: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
