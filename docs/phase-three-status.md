@@ -34,10 +34,10 @@
 - ブラウザStorybook（Playwright・Chromium）：地図の切り替え・小国の駒・世界地図・場所の見出し・地図ボード（世界・320px幅・全訪問・切り替え）を表示して確認。ブラジル・オーストラリア・日本の形とバチカンの駒の選択、切り替えの選択状態、世界地図で日本のピンを押すと日本地図へ移ることを確認した。
 - ブラウザE2E：48件成功（macOS、ローカル）。追加した `e2e/world.spec.ts` の6件（国の記録とピン・数、県から日本のピンと日本地図への移動、小国の駒からの記録、地域が選べないこと、前回の地図の再起動後の復元、拡大した最初の表示）は3回繰り返して成功。
 
+- CI：[PR #5のrun](https://github.com/uraaaa24/tabi-log/actions/runs/44178966438)で check・commitlint・e2e・native-bundles・storybook、[Androidのrun](https://github.com/uraaaa24/tabi-log/actions/runs/44178966441)で android-smoke（Development Buildのコンパイルとエミュレーター上の製品・Storybookの起動画面検査）が成功。世界地図の操作・記録の受け入れ確認は含まない。
+
 ## 実施していないこと
 
 - iPhone実機・Androidエミュレーター・Android実機での世界地図の表示、20倍までのピンチ・パン、駒の押しやすさ、読み上げ。
-- 世界地図を加えた後のCI（Android・E2Eジョブ）の結果。
 - 世界地図の描画性能（195か国・約8,700頂点）の実機での確認。
 - 初回チュートリアル（段階3の範囲外）。
-- Android起動画面検査の文言変更は、CIのAndroidジョブでまだ実行していない。
